@@ -1,0 +1,17 @@
+Styles->style
+Tilesets->tileset
+Datasets->dataset
+
+A dataset is an editable collection of GeoJSON features
+A tileset is a collection of raster or vector data broken up into a uniform grid of square tiles at 22 preset zoom levels.
+
+apiÐ´·¨²Î¿¼Mapbox
+https://docs.mapbox.com/api/maps/#datasets
+
+studio.mapbox.com/datasets
+studio.mapbox.com/tilesets
+studio.mapbox.com/styles
+
+api.mapbox.com/datasets/v1/passer200
+api.mapbox.com/tilesets/v1/passer200
+api.mapbox.com/styles/v1/passer200
