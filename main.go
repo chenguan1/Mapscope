@@ -1,7 +1,11 @@
 package main
 
-import "github.com/chenguan1/Mapscope/server"
+import (
+	"Mapscope/server"
+	"fmt"
+)
 
 func main()  {
+	fmt.Println("hello mapscope")
 	server.Run()
 }
