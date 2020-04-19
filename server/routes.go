@@ -5,6 +5,9 @@ import (
 	"github.com/kataras/iris/v12"
 )
 
+// 30 MB
+const maxFontSize = 30 << 20
+
 // 设置路由
 func newApp() *iris.Application {
 	app := iris.Default()
@@ -27,11 +30,30 @@ func newApp() *iris.Application {
 		ds.Delete("/{username}/{dataset_id}/features/{feature_id}", routes.DatasetFeaturesDelete) // Retrieve a feature
 	}
 
+	// fonts
 	fs := app.Party("/fonts/v1")
 	{
-		fs.Get("/{username}/{font}/{start}.ddd", routes.FontGlypRange) // Retrieve font glyph ranges
+		fs.Get("/{username}/{font}/{rangepbf:string regexp(^[0-9]+-[0-9]+.pbf)}", routes.FontGlypRange) // Retrieve font glyph ranges
 		fs.Get("/{username}", routes.FontList)                                       // List fonts
-		fs.Post("/{username}", routes.FontAdd)                                       // Add a font
+		fs.Post("/{username}", iris.LimitRequestBodySize(maxFontSize), routes.FontAdd)                                       // Add a font
+	}
+
+	// tilesets
+	ts := app.Party("/tilesets/v1")
+	{
+		// tileset source
+		tss := ts.Party("/sources")
+		{
+
+			tss.Post("/{username}/{id}", routes.TilesetSourceCreate) // Create a tileset source, id: tileset source ID
+			tss.Get("/{username}/{id}", routes.TilesetSourceRetrieve) // Retrieve tileset source information
+			tss.Get("/{username}",routes.TilesetSourceList) // List tileset sources
+			tss.Delete("/{username}/{id}", routes.TilesetSourceDelete) // Beta
+		}
+
+		// Create a tileset
+		ts.Post("/{tileset}", )
+
 	}
 
 	return app
