@@ -51,8 +51,11 @@ func newApp() *iris.Application {
 			tss.Delete("/{username}/{id}", routes.TilesetSourceDelete) // Beta
 		}
 
-		// Create a tileset
-		ts.Post("/{tileset}", )
+		ts.Post("/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}", routes.TilesetCreate) // Create a tileset
+		ts.Post("/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}/publish", routes.TilesetPublish) // Publish a tileset
+		ts.Get("/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}/status",routes.TilesetStatus) // Retrieve the status of a tileset
+		ts.Get("/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}/jobs/{job_id}",routes.TilesetJobInfo) // Retrieve information about a single tileset job
+		ts.Get("/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}/jobs",routes.TilesetJobList) // Retrieve information about a single tileset job
 
 	}
 
