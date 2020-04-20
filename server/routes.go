@@ -59,6 +59,12 @@ func newApp() *iris.Application {
 		ts.Put("/queue", routes.TilesetJobQueue)                                                          // View the Tilesets API global queue
 		ts.Put("/validateRecipe", routes.TilesetRecipeValidate)                                           // Validate a recipe
 		ts.Get("/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}/recipe", routes.TilesetRecipe)         // Retrieve a tileset's recipe
+		ts.Patch("/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}/recipe", routes.TilesetRecipeUpdate) // Update a tileset's recipe
+
+		ts.Get("/{username}", routes.TilesetList)                                                        // List tilesets
+		ts.Delete("/{username}/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}", routes.TilesetDelete) // Delete tileset
+		ts.Get("/{tilesetjson:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+.json)}", routes.TilesetMetadata)    // Retrieve TileJSON metadata
+
 	}
 
 	return app

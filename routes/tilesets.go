@@ -3,6 +3,7 @@ package routes
 import (
 	"Mapscope/model"
 	"github.com/kataras/iris/v12/context"
+	"net/http"
 )
 
 /*
@@ -127,4 +128,31 @@ func TilesetRecipe(ctx context.Context) {
 	tr := model.TilesetCreateForm{}
 	ctx.JSON(tr)
 
+}
+
+func TilesetRecipeUpdate(ctx context.Context) {
+	ts := ctx.Params().Get("tileset")
+
+	ctx.Application().Logger().Debug(ts)
+
+	tr := model.TilesetCreateForm{}
+	ctx.JSON(tr)
+
+}
+
+func TilesetList(ctx context.Context)  {
+	username := ctx.Params().Get("username")
+	ctx.Application().Logger().Debug(username)
+	ts := model.Tileset{}
+	tslist := make([]model.Tileset,0)
+	tslist = append(tslist, ts)
+	ctx.JSON(tslist)
+}
+
+func TilesetDelete(ctx context.Context)  {
+	ctx.StatusCode(http.StatusNoContent)
+}
+
+func TilesetMetadata(ctx context.Context)  {
+	ctx.StatusCode(http.StatusNoContent)
 }
