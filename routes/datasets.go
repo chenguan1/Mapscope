@@ -34,18 +34,18 @@ func DatasetCreate(ctx context.Context) {
 	}
 
 	bd := post{}
-	if err := ctx.ReadJSON(&bd); err != nil{
+	if err := ctx.ReadJSON(&bd); err != nil {
 		ctx.JSON(err)
 		return
 	}
 
 	dt := model.Dataset{
-		Id:"123456",
-		Owner:user,
-		Name:bd.Name,
-		Created:time.Now(),
-		Modified:time.Now(),
-		Description:bd.Description,
+		Id:          "123456",
+		Owner:       user,
+		Name:        bd.Name,
+		Created:     time.Now(),
+		Modified:    time.Now(),
+		Description: bd.Description,
 	}
 	// create dataset
 
@@ -57,8 +57,8 @@ func DatasetRetrive(ctx context.Context) {
 	dtid := ctx.Params().Get("dataset_id")
 
 	dt := model.Dataset{
-		Id:dtid,
-		Owner:user,
+		Id:    dtid,
+		Owner: user,
 	}
 
 	ctx.JSON(dt)
@@ -73,18 +73,18 @@ func DatasetUpdate(ctx context.Context) {
 	}
 
 	bd := post{}
-	if err := ctx.ReadJSON(&bd); err != nil{
+	if err := ctx.ReadJSON(&bd); err != nil {
 		ctx.JSON(err)
 		return
 	}
 
 	dt := model.Dataset{
-		Id:dtid,
-		Owner:user,
-		Name:bd.Name,
-		Created:time.Now(),
-		Modified:time.Now(),
-		Description:bd.Description,
+		Id:          dtid,
+		Owner:       user,
+		Name:        bd.Name,
+		Created:     time.Now(),
+		Modified:    time.Now(),
+		Description: bd.Description,
 	}
 
 	ctx.JSON(dt)
@@ -94,7 +94,7 @@ func DatasetDelete(ctx context.Context) {
 	user := ctx.Params().Get("username")
 	dtid := ctx.Params().Get("dataset_id")
 
-	ctx.Application().Logger().Printf("delete %v.%v", user,dtid)
+	ctx.Application().Logger().Printf("delete %v.%v", user, dtid)
 
 	ctx.StatusCode(http.StatusNoContent)
 }
@@ -107,25 +107,23 @@ func DatasetFeatures(ctx context.Context) {
 
 	//
 	// limit [1,100]
-	if limit == ""{
+	if limit == "" {
 		limit = "10"
 	}
 
 	// start: The ID of the feature after which to start the listing.
 
-
-	ctx.Application().Logger().Printf("get features %v.%v,%v,%v", user,dtid,limit,start)
+	ctx.Application().Logger().Printf("get features %v.%v,%v,%v", user, dtid, limit, start)
 
 	ctx.WriteString("return the json list of features.")
 }
-
 
 func DatasetFeaturesInsert(ctx context.Context) {
 	user := ctx.Params().Get("username")
 	dtid := ctx.Params().Get("dataset_id")
 	ftid := ctx.Params().Get("feature_id")
 
-	ctx.Application().Logger().Printf("insert feature %v.%v,%v", user,dtid,ftid)
+	ctx.Application().Logger().Printf("insert feature %v.%v,%v", user, dtid, ftid)
 
 	geojson := make(map[string]interface{})
 	ctx.ReadJSON(&geojson)
@@ -137,7 +135,7 @@ func DatasetFeaturesRetrive(ctx context.Context) {
 	dtid := ctx.Params().Get("dataset_id")
 	ftid := ctx.Params().Get("feature_id")
 
-	ctx.Application().Logger().Printf("retrive a feature %v.%v,%v", user,dtid,ftid)
+	ctx.Application().Logger().Printf("retrive a feature %v.%v,%v", user, dtid, ftid)
 
 	geojson := `
 {
@@ -163,13 +161,12 @@ func DatasetFeaturesRetrive(ctx context.Context) {
 	ctx.WriteString(geojson)
 }
 
-
 func DatasetFeaturesDelete(ctx context.Context) {
 	user := ctx.Params().Get("username")
 	dtid := ctx.Params().Get("dataset_id")
 	ftid := ctx.Params().Get("feature_id")
 
-	ctx.Application().Logger().Printf("delete a feature %v.%v,%v", user,dtid,ftid)
+	ctx.Application().Logger().Printf("delete a feature %v.%v,%v", user, dtid, ftid)
 
 	ctx.StatusCode(http.StatusNoContent)
 }

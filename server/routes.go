@@ -34,8 +34,8 @@ func newApp() *iris.Application {
 	fs := app.Party("/fonts/v1")
 	{
 		fs.Get("/{username}/{font}/{rangepbf:string regexp(^[0-9]+-[0-9]+.pbf)}", routes.FontGlypRange) // Retrieve font glyph ranges
-		fs.Get("/{username}", routes.FontList)                                       // List fonts
-		fs.Post("/{username}", iris.LimitRequestBodySize(maxFontSize), routes.FontAdd)                                       // Add a font
+		fs.Get("/{username}", routes.FontList)                                                          // List fonts
+		fs.Post("/{username}", iris.LimitRequestBodySize(maxFontSize), routes.FontAdd)                  // Add a font
 	}
 
 	// tilesets
@@ -45,18 +45,20 @@ func newApp() *iris.Application {
 		tss := ts.Party("/sources")
 		{
 
-			tss.Post("/{username}/{id}", routes.TilesetSourceCreate) // Create a tileset source, id: tileset source ID
-			tss.Get("/{username}/{id}", routes.TilesetSourceRetrieve) // Retrieve tileset source information
-			tss.Get("/{username}",routes.TilesetSourceList) // List tileset sources
+			tss.Post("/{username}/{id}", routes.TilesetSourceCreate)   // Create a tileset source, id: tileset source ID
+			tss.Get("/{username}/{id}", routes.TilesetSourceRetrieve)  // Retrieve tileset source information
+			tss.Get("/{username}", routes.TilesetSourceList)           // List tileset sources
 			tss.Delete("/{username}/{id}", routes.TilesetSourceDelete) // Beta
 		}
 
-		ts.Post("/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}", routes.TilesetCreate) // Create a tileset
-		ts.Post("/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}/publish", routes.TilesetPublish) // Publish a tileset
-		ts.Get("/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}/status",routes.TilesetStatus) // Retrieve the status of a tileset
-		ts.Get("/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}/jobs/{job_id}",routes.TilesetJobInfo) // Retrieve information about a single tileset job
-		ts.Get("/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}/jobs",routes.TilesetJobList) // Retrieve information about a single tileset job
-
+		ts.Post("/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}", routes.TilesetCreate)               // Create a tileset
+		ts.Post("/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}/publish", routes.TilesetPublish)      // Publish a tileset
+		ts.Get("/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}/status", routes.TilesetStatus)         // Retrieve the status of a tileset
+		ts.Get("/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}/jobs/{job_id}", routes.TilesetJobInfo) // Retrieve information about a single tileset job
+		ts.Get("/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}/jobs", routes.TilesetJobList)          // List information about all jobs for a tileset
+		ts.Put("/queue", routes.TilesetJobQueue)                                                          // View the Tilesets API global queue
+		ts.Put("/validateRecipe", routes.TilesetRecipeValidate)                                           // Validate a recipe
+		ts.Get("/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}/recipe", routes.TilesetRecipe)         // Retrieve a tileset's recipe
 	}
 
 	return app

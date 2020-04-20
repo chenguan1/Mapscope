@@ -9,7 +9,6 @@ import (
 	"os"
 )
 
-
 func TilesetSourceCreate(ctx context.Context) {
 	//user := ctx.Params().Get("username")
 	tssid := ctx.Params().Get("id")
@@ -37,10 +36,10 @@ func TilesetSourceCreate(ctx context.Context) {
 	io.Copy(out, file)
 
 	tss := model.TilesetSource{
-		Id:tssid,
-		FileSize:info.Size,
-		Files:1,
-		SourceSize:info.Size,
+		Id:         tssid,
+		FileSize:   info.Size,
+		Files:      1,
+		SourceSize: info.Size,
 	}
 
 	ctx.JSON(tss)
@@ -51,28 +50,28 @@ func TilesetSourceRetrieve(ctx context.Context) {
 	tssid := ctx.Params().Get("id")
 
 	tss := model.TilesetSource{
-		Id:tssid,
-		Files:2,
-		Size:2048,
-		SizeNice:"2.0KB",
+		Id:       tssid,
+		Files:    2,
+		Size:     2048,
+		SizeNice: "2.0KB",
 	}
 
 	ctx.JSON(tss)
 }
 
-func TilesetSourceList(ctx context.Context)  {
+func TilesetSourceList(ctx context.Context) {
 	//user := ctx.Params().Get("username")
 	tssid := ctx.Params().Get("id")
 
 	tss := model.TilesetSource{
-		Id:tssid,
-		Files:2,
-		Size:2048,
-		SizeNice:"2.0KB",
+		Id:       tssid,
+		Files:    2,
+		Size:     2048,
+		SizeNice: "2.0KB",
 	}
 
-	list := make([]model.TilesetSource,0)
-	list = append(list,tss)
+	list := make([]model.TilesetSource, 0)
+	list = append(list, tss)
 
 	ctx.JSON(list)
 }
@@ -81,8 +80,7 @@ func TilesetSourceDelete(ctx context.Context) {
 	user := ctx.Params().Get("username")
 	tssid := ctx.Params().Get("id")
 
-	ctx.Application().Logger().Debug(user,tssid)
+	ctx.Application().Logger().Debug(user, tssid)
 
 	ctx.StatusCode(http.StatusNoContent)
 }
-

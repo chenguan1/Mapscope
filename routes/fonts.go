@@ -22,30 +22,30 @@ func FontGlypRange(ctx context.Context) {
 	font := ctx.Params().Get("font")
 	pbf := ctx.Params().Get("rangepbf") // 0-255.pbf
 
-	str := fmt.Sprintf("%v,%v,%v",user,font,pbf)
+	str := fmt.Sprintf("%v,%v,%v", user, font, pbf)
 	ctx.WriteString(str)
 }
 
 func FontList(ctx context.Context) {
 	user := ctx.Params().Get("username")
-	ftlist := make([]string,0)
-	ftlist = append(ftlist,user+"'s font")
+	ftlist := make([]string, 0)
+	ftlist = append(ftlist, user+"'s font")
 	ctx.JSON(ftlist)
 }
 
 func FontAdd(ctx context.Context) {
 	user := ctx.Params().Get("username")
 
-	body,err := ctx.GetBody()
-	if err != nil{
+	body, err := ctx.GetBody()
+	if err != nil {
 		ctx.JSON(err)
 		return
 	}
 
 	ctx.Application().Logger().Println(len(body))
 
-	err = ioutil.WriteFile("./data/uploads/myfont.ttf",body,0777)
-	if err != nil{
+	err = ioutil.WriteFile("./data/uploads/myfont.ttf", body, 0777)
+	if err != nil {
 		ctx.JSON(err)
 		return
 	}
