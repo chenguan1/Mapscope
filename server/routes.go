@@ -29,6 +29,10 @@ func newApp() *iris.Application {
 		ds.Put("/{username}/{dataset_id}/features/{feature_id}", routes.DatasetFeaturesInsert)    // Insert or update a feature
 		ds.Get("/{username}/{dataset_id}/features/{feature_id}", routes.DatasetFeaturesRetrive)   // Retrieve a feature
 		ds.Delete("/{username}/{dataset_id}/features/{feature_id}", routes.DatasetFeaturesDelete) // Retrieve a feature
+
+		// 自己定义的接口，非mapbox定义的接口
+		// 上传数据集，支持zip包，geojson，json，shp(zip)
+		ds.Post("/{username}/{dataset_id}", routes.DatasetUpload)
 	}
 
 	// fonts

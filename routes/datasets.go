@@ -1,9 +1,15 @@
 package routes
 
 import (
+	"Mapscope/config"
+	"Mapscope/controls"
 	"Mapscope/model"
+	"Mapscope/utils"
 	"github.com/kataras/iris/v12/context"
+	"github.com/teris-io/shortid"
+	"mime/multipart"
 	"net/http"
+	"path/filepath"
 	"time"
 )
 
@@ -173,4 +179,34 @@ func DatasetFeaturesDelete(ctx context.Context) {
 	ctx.Application().Logger().Printf("delete a feature %v.%v,%v", user, dtid, ftid)
 
 	ctx.StatusCode(http.StatusNoContent)
+}
+
+// 数据上传
+func DatasetUpload(ctx context.Context)  {
+	user := ctx.Params().Get("username")
+	dtid := ctx.Params().Get("dataset_id")
+
+	uf := filepath.Join(config.Get().DataFolder, "uploads", user)
+	utils.EnsurePathExist(uf)
+
+	var filename string
+	_, err :=ctx.UploadFormFiles(uf, func(i context.Context, header *multipart.FileHeader) {
+		sid, _ := shortid.Generate()
+		header.Filename = sid + "." + header.Filename
+		filename = header.Filename
+	})
+
+	if err != nil{
+		panic(err)
+	}
+
+	ctx.Application().Logger().Info("dataset uploaded:",user, dtid, filename)
+
+	// 处理入库
+	err = controls.DatasetParseAndStore(user, dtid, filepath.Join(uf,filename))
+	if err != nil{
+		panic(err)
+	}
+
+	ctx.JSON("ok")
 }
