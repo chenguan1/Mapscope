@@ -25,6 +25,7 @@ func newApp() *iris.Application {
 		ds.Patch("/{username}/{dataset_id}", routes.DatasetUpdate)                                // Retrieve a dataset
 		ds.Delete("/{username}/{dataset_id}", routes.DatasetDelete)                               // Delete a dataset
 		ds.Get("/{username}/{dataset_id}/features", routes.DatasetFeatures)                       // List features
+		ds.Post("/{username}/{dataset_id}/features", routes.DatasetFeaturesPut)                   // List features
 		ds.Put("/{username}/{dataset_id}/features/{feature_id}", routes.DatasetFeaturesInsert)    // Insert or update a feature
 		ds.Get("/{username}/{dataset_id}/features/{feature_id}", routes.DatasetFeaturesRetrive)   // Retrieve a feature
 		ds.Delete("/{username}/{dataset_id}/features/{feature_id}", routes.DatasetFeaturesDelete) // Retrieve a feature
@@ -66,6 +67,11 @@ func newApp() *iris.Application {
 		ts.Get("/{tilesetjson:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+.json)}", routes.TilesetMetadata)    // Retrieve TileJSON metadata
 
 	}
+
+	// Retrieve vector tiles
+	// app.Get("/v4/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}/{zoom:int}/{x:int}/{yformat:string regexp(^[0-9]+.{[a-z]+})}")
+	// Retrieve raster tiles
+	// app.Get("/v4/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}/{zoom:int}/{x:int}/{yformat:string regexp(^[0-9]+.{[a-z]+})}")
 
 	return app
 }

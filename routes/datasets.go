@@ -118,6 +118,10 @@ func DatasetFeatures(ctx context.Context) {
 	ctx.WriteString("return the json list of features.")
 }
 
+func DatasetFeaturesPut(ctx context.Context) {
+	//
+}
+
 func DatasetFeaturesInsert(ctx context.Context) {
 	user := ctx.Params().Get("username")
 	dtid := ctx.Params().Get("dataset_id")
