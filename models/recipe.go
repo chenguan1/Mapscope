@@ -1,4 +1,4 @@
-package model
+package models
 
 //https://docs.mapbox.com/help/troubleshooting/tileset-recipe-reference
 

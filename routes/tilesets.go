@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"Mapscope/model"
+	"Mapscope/models"
 	"github.com/kataras/iris/v12/context"
 	"net/http"
 )
@@ -15,7 +15,7 @@ func TilesetCreate(ctx context.Context) {
 
 	ctx.Application().Logger().Debug(ts)
 
-	tform := model.TilesetCreateForm{}
+	tform := models.TilesetCreateForm{}
 	tform.Private = true
 
 	err := ctx.ReadJSON(&tform)
@@ -107,7 +107,7 @@ func TilesetJobQueue(ctx context.Context) {
 }
 
 func TilesetRecipeValidate(ctx context.Context) {
-	rcp := model.Recipe{}
+	rcp := models.Recipe{}
 	err := ctx.ReadJSON(&rcp)
 	if err != nil {
 		ctx.JSON(err)
@@ -125,7 +125,7 @@ func TilesetRecipe(ctx context.Context) {
 
 	ctx.Application().Logger().Debug(ts)
 
-	tr := model.TilesetCreateForm{}
+	tr := models.TilesetCreateForm{}
 	ctx.JSON(tr)
 
 }
@@ -135,7 +135,7 @@ func TilesetRecipeUpdate(ctx context.Context) {
 
 	ctx.Application().Logger().Debug(ts)
 
-	tr := model.TilesetCreateForm{}
+	tr := models.TilesetCreateForm{}
 	ctx.JSON(tr)
 
 }
@@ -143,8 +143,8 @@ func TilesetRecipeUpdate(ctx context.Context) {
 func TilesetList(ctx context.Context)  {
 	username := ctx.Params().Get("username")
 	ctx.Application().Logger().Debug(username)
-	ts := model.Tileset{}
-	tslist := make([]model.Tileset,0)
+	ts := models.Tileset{}
+	tslist := make([]models.Tileset,0)
 	tslist = append(tslist, ts)
 	ctx.JSON(tslist)
 }

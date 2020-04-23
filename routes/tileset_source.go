@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"Mapscope/model"
+	"Mapscope/models"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
 	"io"
@@ -35,7 +35,7 @@ func TilesetSourceCreate(ctx context.Context) {
 	defer out.Close()
 	io.Copy(out, file)
 
-	tss := model.TilesetSource{
+	tss := models.TilesetSource{
 		Id:         tssid,
 		FileSize:   info.Size,
 		Files:      1,
@@ -49,7 +49,7 @@ func TilesetSourceRetrieve(ctx context.Context) {
 	//user := ctx.Params().Get("username")
 	tssid := ctx.Params().Get("id")
 
-	tss := model.TilesetSource{
+	tss := models.TilesetSource{
 		Id:       tssid,
 		Files:    2,
 		Size:     2048,
@@ -63,14 +63,14 @@ func TilesetSourceList(ctx context.Context) {
 	//user := ctx.Params().Get("username")
 	tssid := ctx.Params().Get("id")
 
-	tss := model.TilesetSource{
+	tss := models.TilesetSource{
 		Id:       tssid,
 		Files:    2,
 		Size:     2048,
 		SizeNice: "2.0KB",
 	}
 
-	list := make([]model.TilesetSource, 0)
+	list := make([]models.TilesetSource, 0)
 	list = append(list, tss)
 
 	ctx.JSON(list)

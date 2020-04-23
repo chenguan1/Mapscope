@@ -3,13 +3,13 @@ package routes
 import (
 	"Mapscope/config"
 	"Mapscope/controls"
-	"Mapscope/model"
+	"Mapscope/models"
 	"Mapscope/utils"
 	"github.com/kataras/iris/v12/context"
 	"github.com/teris-io/shortid"
-	"mime/multipart"
 	"net/http"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -25,8 +25,8 @@ No dataset	422	Check the dataset ID used in the query (or, if you are retrieving
 
 func DatasetList(ctx context.Context) {
 	user := ctx.Params().Get("username")
-	dts := make([]model.Dataset, 0)
-	dts = append(dts, model.Dataset{
+	dts := make([]models.Dataset, 0)
+	dts = append(dts, models.Dataset{
 		Owner: user,
 	})
 	ctx.JSON(dts)
@@ -45,7 +45,7 @@ func DatasetCreate(ctx context.Context) {
 		return
 	}
 
-	dt := model.Dataset{
+	dt := models.Dataset{
 		Id:          "123456",
 		Owner:       user,
 		Name:        bd.Name,
@@ -62,7 +62,7 @@ func DatasetRetrive(ctx context.Context) {
 	user := ctx.Params().Get("username")
 	dtid := ctx.Params().Get("dataset_id")
 
-	dt := model.Dataset{
+	dt := models.Dataset{
 		Id:    dtid,
 		Owner: user,
 	}
@@ -84,7 +84,7 @@ func DatasetUpdate(ctx context.Context) {
 		return
 	}
 
-	dt := model.Dataset{
+	dt := models.Dataset{
 		Id:          dtid,
 		Owner:       user,
 		Name:        bd.Name,
@@ -181,32 +181,81 @@ func DatasetFeaturesDelete(ctx context.Context) {
 	ctx.StatusCode(http.StatusNoContent)
 }
 
-// 数据上传
+// 数据上传，支持shp压缩包，geojson，csv等
 func DatasetUpload(ctx context.Context)  {
 	user := ctx.Params().Get("username")
-	dtid := ctx.Params().Get("dataset_id")
+	//dtid := ctx.Params().Get("dataset_id")
 
-	uf := filepath.Join(config.Get().DataFolder, "uploads", user)
-	utils.EnsurePathExist(uf)
+	var err error
 
-	var filename string
-	_, err :=ctx.UploadFormFiles(uf, func(i context.Context, header *multipart.FileHeader) {
-		sid, _ := shortid.Generate()
-		header.Filename = sid + "." + header.Filename
-		filename = header.Filename
-	})
+	// 用户权限验证
+	// to do ...
 
-	if err != nil{
-		panic(err)
+	folder := filepath.Join(config.Get().DataFolder, "uploads", user)
+	utils.EnsurePathExist(folder)
+
+	dtfolder := filepath.Join(config.Get().DataFolder, "datasets", user)
+	utils.EnsurePathExist(dtfolder)
+
+	res := utils.NewRes(ctx)
+
+	// 保存上传的文件
+	files := utils.SaveFormFiles(ctx,folder)
+	if len(files) == 0{
+		res.FailMsg("upload files failed.")
+		return
 	}
 
-	ctx.Application().Logger().Info("dataset uploaded:",user, dtid, filename)
+	// 得到所有文件
+	allfs := make([]string,0)
+	for _, ff := range files{
+		switch ff.Ext {
+		case models.ZIPEXT:
+			fs,err := utils.UnzipFile(ff.Path, "")
+			if err != nil{
+				ctx.Application().Logger().Error("unzip file failed, file:",ff.Path)
+				res.FailMsg("unzip the file failed.")
+			}
+			allfs = append(allfs, fs...)
+		}
+	}
+
+	// 过滤出支持的后缀文件格式，暂时只支持
+	exts := models.GEOJSONEXT + models.SHPEXT + models.CSVEXT// + models.KMLEXT + models.GPXEXT
+	vfs := utils.FilterByExt(allfs, exts)
+	if len(vfs) == 0{
+		ctx.Application().Logger().Error("file uploaded is not supported.")
+		res.FailMsg("file type not supported.")
+		return
+	}
+
+	// 将支持的格式转成geojson格式
+	geojsons := make([]string,0) // dataset, 准备入库，记录必要信息
+	for _, f := range vfs{
+		gp := strings.TrimSuffix(filepath.Base(f), filepath.Ext(f)) + ".geojson"
+		if utils.PathExist(filepath.Join(dtfolder,gp)){
+			sid,_ := shortid.Generate()
+			gp = sid + "." + gp
+		}
+
+		err = controls.ToGeojson(f, gp)
+		if err != nil{
+			ctx.Application().Logger().Error("DatasetUpload, convert to geojson failed:",err)
+			res.FailMsg("parse file failed.")
+			return
+		}
+
+		geojsons = append(geojsons, gp)
+	}
+
+
+
 
 	// 处理入库
 	err = controls.DatasetParseAndStore(user, dtid, filepath.Join(uf,filename))
 	if err != nil{
 		panic(err)
-	}
+	}*/
 
 	ctx.JSON("ok")
 }

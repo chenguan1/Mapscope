@@ -1,4 +1,4 @@
-package model
+package models
 
 // CRS coordinate reference system
 type CRS string
