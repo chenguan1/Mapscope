@@ -22,6 +22,15 @@ type Datasource struct {
 }
 
 // create or update datasource
-func (*Datasource) Save() error {
-	return nil
+// save to database, datasorces table
+func (ds *Datasource) Save() error {
+	return db.Create(ds).Error
+}
+
+// 将datasorce（geojson）数据导入到数据库中
+// 每个geojson成为一个数据表，数据表信息存入Dataset对象返回
+// dataset对象不入库，让调用者处理
+func (*Datasource) ToDataset() (*Dataset, error)  {
+	// 使用ogr2ogr工具，将geojson导入到数据库中
+	return &Dataset{}, nil
 }

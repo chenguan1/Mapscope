@@ -272,24 +272,33 @@ func DatasetUpload(ctx context.Context)  {
 	}
 
 
-	// 入库 dtsrc
+	// 入库 dtsrc，并转换成dataset
+	dts := make([]*models.Dataset,0)
 	for _,ds := range dtsrcs{
+		// 入库
 		err := ds.Save()
 		if err != nil{
 			ctx.Application().Logger().Error("Datasorce save failed,",ds.Path,err)
-			res.FailMsg("Datasorce save failed." + ds.Path)
+			res.FailMsg("Datasorce save failed.")
 			return
 		}
+		// to dataset
+		dt,err := ds.ToDataset()
+		if err != nil{
+			ctx.Application().Logger().Error("Dataset save failed,",ds.Path,err)
+			res.FailMsg("Dataset save failed.")
+			return
+		}
+
+		// dt 入库
+		err = dt.Save()
+		if err != nil{
+			ctx.Application().Logger().Error("Dataset insert failed,",ds.Path,err)
+			res.FailMsg("Dataset insert failed.")
+			return
+		}
+		dts = append(dts, dt)
 	}
 
-	// 转换成dataset
-
-
-	// 处理入库
-	/*err = controls.DatasetParseAndStore(user, dtid, filepath.Join(uf,filename))
-	if err != nil{
-		panic(err)
-	}*/
-
-	ctx.JSON("ok")
+	res.DoneData(dts)
 }

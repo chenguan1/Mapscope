@@ -12,4 +12,14 @@ type Dataset struct {
 	Created     time.Time  `json:"created"`
 	Modified    time.Time  `json:"modified"`
 	Description string     `json:"description"`
+
+	// gray add
+	Source  string   `json:"-"`
+	GeoType GeoType  `json:"geotype"`
+	Fields  []string `json:"fields"`
+}
+
+// 保存dataset到数据库中
+func (dt *Dataset)Save() error {
+	return db.Create(dt).Error
 }
