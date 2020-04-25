@@ -1,9 +1,12 @@
 package utils
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/axgle/mahonia"
 	"github.com/teris-io/shortid"
+	"io"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
@@ -42,6 +45,8 @@ func (para ogr2dbparams) ToStringList() []string {
 		para.Dbname, para.Pghost, para.Pgport, para.Pguser, para.Pgpswd)
 	pms = append(pms, pg)
 	pms = append(pms, []string{"-t_srs", para.Srs_t}...)
+	pms = append(pms, "-overwrite") // 清空重写
+
 	//显示进度,读取outbuffer缓冲区
 	pms = append(pms, "-progress")
 	//跳过失败
@@ -73,6 +78,19 @@ func Ogr2Db(file_in string, p ogr2dbparams) error {
 	}
 
 	cmd := exec.Command("ogr2ogr", pms...)
+
+	var stdoutBuf, stderrBuf bytes.Buffer
+	stdoutIn, _ := cmd.StdoutPipe()
+	stderrIn, _ := cmd.StderrPipe()
+	stdout := io.MultiWriter(os.Stdout, &stdoutBuf)
+	stderr := io.MultiWriter(os.Stderr, &stderrBuf)
+	go func() {
+		io.Copy(stdout, stdoutIn)
+	}()
+	go func() {
+		io.Copy(stderr, stderrIn)
+	}()
+
 	err = cmd.Start()
 	if err != nil {
 		return fmt.Errorf("start insert to database failed. err: %v", err)
