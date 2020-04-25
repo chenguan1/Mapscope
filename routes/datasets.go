@@ -184,10 +184,9 @@ func DatasetFeaturesDelete(ctx context.Context) {
 
 // 数据上传，支持shp压缩包，geojson，csv等
 // 其他格式的都转换成geojson格式的datasource，
-// 并且入库成为dataset
+// 并且入库成为dataset-list
 func DatasetUpload(ctx context.Context)  {
 	user := ctx.Params().Get("username")
-	dtid := ctx.Params().Get("dataset_id")
 
 	var err error
 
@@ -236,10 +235,11 @@ func DatasetUpload(ctx context.Context)  {
 	dtsrcs := make([]models.Datasource,0) // datasorce 准备入库，记录必要信息
 	for _, f := range vfs{
 		gp := strings.TrimSuffix(filepath.Base(f), filepath.Ext(f)) + ".geojson"
-		if utils.PathExist(filepath.Join(dtfolder,gp)){
-			sid,_ := shortid.Generate()
-			gp = sid + "." + gp
-		}
+		sid,_ := shortid.Generate()
+		//if utils.PathExist(filepath.Join(dtfolder,gp)){
+		//	gp = sid + "_" + gp
+		//}
+		gp = sid + "_" + gp
 
 		err = controls.ToGeojson(f, gp)
 		if err != nil{
@@ -256,16 +256,17 @@ func DatasetUpload(ctx context.Context)  {
 		}
 
 		// to datasource
-		st := models.Datasource{}
-		st.Id,_ = shortid.Generate()
-		st.Name = strings.TrimPrefix(filepath.Base(gp),filepath.Ext(gp))
-		st.Owner = user
-		st.Src = f
-		st.Path = gp
-		st.CreatedAt = time.Now()
-		st.UpdatedAt = time.Now()
-		st.Size = info.Size()
-		st.Tag = "dataset." + dtid
+		st := models.Datasource{
+			Id:sid,
+			Name : strings.TrimPrefix(filepath.Base(gp),filepath.Ext(gp)),
+			Owner:user,
+			Src:f,
+			Path:gp,
+			CreatedAt:time.Now(),
+			UpdatedAt:time.Now(),
+			Size:info.Size(),
+			Tag:"",
+		}
 
 		// append
 		dtsrcs = append(dtsrcs, st)

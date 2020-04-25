@@ -13,7 +13,7 @@ import (
 	"strings"
 )
 
-type ogr2dbparams struct {
+type Ogr2dbparams struct {
 	Pghost    string
 	Pgport    string
 	Pguser    string
@@ -24,9 +24,9 @@ type ogr2dbparams struct {
 	TableName string
 }
 
-func NewOgr2DbParams() ogr2dbparams {
+func NewOgr2DbParams() Ogr2dbparams {
 	sid, _ := shortid.Generate()
-	return ogr2dbparams{
+	return Ogr2dbparams{
 		Pghost:    "localhost",
 		Pgport:    "5432",
 		Pguser:    "postgres",
@@ -38,7 +38,7 @@ func NewOgr2DbParams() ogr2dbparams {
 	}
 }
 
-func (para ogr2dbparams) ToStringList() []string {
+func (para Ogr2dbparams) ToStringList() []string {
 	var pms []string
 	pms = append(pms, []string{"-f", "PostgreSQL"}...)
 	pg := fmt.Sprintf(`PG:dbname=%s host=%s port=%s user=%s password=%s`,
@@ -62,7 +62,7 @@ func (para ogr2dbparams) ToStringList() []string {
 }
 
 // 调用ogr2ogr
-func Ogr2Db(file_in string, p ogr2dbparams) error {
+func Ogr2Db(file_in string, p Ogr2dbparams) error {
 	file_in, err := filepath.Abs(file_in)
 	if err != nil {
 		return fmt.Errorf("file path is error: %v", err)

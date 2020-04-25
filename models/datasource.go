@@ -1,6 +1,8 @@
 package models
 
 import (
+	"Mapscope/utils"
+	"fmt"
 	"time"
 )
 
@@ -15,8 +17,6 @@ type Datasource struct {
 	Path      string    `json:"path"`
 	Src       string    `json:"src"` // 原始文件 上传到服务器的原始文件，存在upoads文件夹下
 	Tag       string    `json:"tag"`
-	// Crs       string    `json:"crs"` // WGS84,CGCS2000,GCJ02,BD09
-	// Geotype   GeoType   `json:"geotype"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -30,7 +30,49 @@ func (ds *Datasource) Save() error {
 // 将datasorce（geojson）数据导入到数据库中
 // 每个geojson成为一个数据表，数据表信息存入Dataset对象返回
 // dataset对象不入库，让调用者处理
-func (*Datasource) ToDataset() (*Dataset, error)  {
+func (ds *Datasource) ToDataset() (*Dataset, error)  {
 	// 使用ogr2ogr工具，将geojson导入到数据库中
-	return &Dataset{}, nil
+
+	// dataset_jalkdsf-dafd-d
+	sid := ds.Id
+	tableName := "dataset_" + sid
+
+	// 参数
+	ps := utils.NewOgr2DbParams()
+	ps.Pghost = "localhost"
+	ps.Pgport = "5432"
+	ps.Pguser = "postgres"
+	ps.Pgpswd = "123456"
+	ps.Dbname = "mapscope"
+	ps.Srs_t =  "EPSG:4326"
+	ps.GeoName = "geom"
+	ps.TableName = tableName
+
+	// 入库
+	err := utils.Ogr2Db(ds.Path, ps)
+	if err != nil{
+		return nil, fmt.Errorf("Datasource to database failed. err: %v", err)
+	}
+
+	// 类型
+
+	dt := &Dataset{
+		Id:sid,
+		Name:ds.Name,
+		Owner:ds.Owner,
+		Size:ds.Size,
+		Features:0,
+		Bounds:[4]float64{0,0,0,0},
+		Created:time.Now(),
+		Modified:time.Now(),
+		Description:"",
+		Source:ds.Id,
+		TableName:tableName,
+		GeoType:"....",
+		Fields:[]string{},
+	}
+
+
+
+	return dt, nil
 }

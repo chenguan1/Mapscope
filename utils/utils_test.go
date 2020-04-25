@@ -1,6 +1,9 @@
 package utils
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 
 func TestConvertShp2Geojson(t *testing.T) {
@@ -20,6 +23,7 @@ func TestConvertCsv2Geojson(t *testing.T) {
 }
 
 func TestOgr2Db(t *testing.T) {
+	return
 	para := NewOgr2DbParams()
 	para.Pgport = "5432"
 	para.Pghost = "localhost"
@@ -33,4 +37,22 @@ func TestOgr2Db(t *testing.T) {
 	if err != nil{
 		t.Errorf("Ogr2Db Failed.err: %v", err)
 	}
+}
+
+func TestOgrinfoPg(t *testing.T) {
+	para := OgrinfoPgParams{
+		Host:"localhost",
+		Port:"5432",
+		Username:"postgres",
+		Password:"111111",
+		DbName:"mapscope",
+	}
+
+	info ,err := OgrinfoPg(para,"dataset_test0")
+	if err != nil{
+		t.Error(err)
+	}
+
+	fmt.Println(info)
+
 }

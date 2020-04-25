@@ -32,7 +32,7 @@ func newApp() *iris.Application {
 
 		// 自己定义的接口，非mapbox定义的接口
 		// 上传数据集，支持zip包，geojson，json，shp(zip)
-		ds.Post("/{username}/{dataset_id}", routes.DatasetUpload)
+		ds.Post("/{username}", routes.DatasetUpload)
 	}
 
 	// fonts
