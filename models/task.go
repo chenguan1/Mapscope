@@ -1,7 +1,8 @@
 package models
 
 import (
-"time"
+	"Mapscope/global"
+	"time"
 
 //_ "github.com/mattn/go-sqlite3" // import sqlite3 driver
 // "github.com/paulmach/orb/encoding/wkb"
@@ -25,6 +26,7 @@ type Task struct {
 }
 
 func (task *Task) save() error {
+	db := global.GetDb()
 	err := db.Create(task).Error
 	if err != nil {
 		return err
@@ -33,6 +35,7 @@ func (task *Task) save() error {
 }
 
 func (task *Task) update() error {
+	db := global.GetDb()
 	err := db.Model(&Task{}).Update(task).Error
 	if err != nil {
 		return err

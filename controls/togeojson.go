@@ -32,9 +32,9 @@ func ToGeojson(vfile string, out_geojson string) error {
 			return err
 		}
 	case models.GEOJSONEXT:
-		_,err = utils.CopyFile(vfile,out_geojson)
+		_,err = utils.CopyFile(out_geojson,vfile)
 		if err != nil{
-			return nil
+			return err
 		}
 	default:
 		return fmt.Errorf("file is not surpported, file: %v", vfile)

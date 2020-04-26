@@ -1,11 +1,11 @@
 package routes
 
 import (
-	"Mapscope/config"
 	"Mapscope/controls"
 	"Mapscope/models"
 	"Mapscope/utils"
 	"github.com/kataras/iris/v12/context"
+	"github.com/spf13/viper"
 	"github.com/teris-io/shortid"
 	"net/http"
 	"os"
@@ -193,10 +193,12 @@ func DatasetUpload(ctx context.Context)  {
 	// 用户权限验证
 	// to do ...
 
-	folder := filepath.Join(config.Get().DataFolder, "uploads", user)
+	folder := filepath.Join(viper.GetString("paths.data"), "uploads", user)
+	folder,_ = filepath.Abs(folder)
 	utils.EnsurePathExist(folder)
 
-	dtfolder := filepath.Join(config.Get().DataFolder, "datasets", user)
+	dtfolder := filepath.Join(viper.GetString("paths.data"), "datasets", user)
+	dtfolder,_ = filepath.Abs(dtfolder)
 	utils.EnsurePathExist(dtfolder)
 
 	res := utils.NewRes(ctx)
@@ -215,10 +217,14 @@ func DatasetUpload(ctx context.Context)  {
 		case models.ZIPEXT:
 			fs,err := utils.UnzipFile(ff.Path, "")
 			if err != nil{
-				ctx.Application().Logger().Error("unzip file failed, file:",ff.Path)
+				ctx.Application().Logger().Error("DatasetUpload, unzip file failed, file:",ff.Path)
 				res.FailMsg("unzip the file failed.")
 			}
 			allfs = append(allfs, fs...)
+		case models.GEOJSONEXT:
+			fallthrough
+		case models.CSVEXT:
+			allfs = append(allfs, ff.Path)
 		}
 	}
 
@@ -226,7 +232,7 @@ func DatasetUpload(ctx context.Context)  {
 	exts := models.GEOJSONEXT + models.SHPEXT + models.CSVEXT// + models.KMLEXT + models.GPXEXT
 	vfs := utils.FilterByExt(allfs, exts)
 	if len(vfs) == 0{
-		ctx.Application().Logger().Error("file uploaded is not supported.")
+		ctx.Application().Logger().Error("DatasetUpload, file uploaded is not supported.")
 		res.FailMsg("file type not supported.")
 		return
 	}
@@ -240,6 +246,7 @@ func DatasetUpload(ctx context.Context)  {
 		//	gp = sid + "_" + gp
 		//}
 		gp = sid + "_" + gp
+		gp = filepath.Join(dtfolder,gp)
 
 		err = controls.ToGeojson(f, gp)
 		if err != nil{
@@ -250,7 +257,7 @@ func DatasetUpload(ctx context.Context)  {
 
 		info,err := os.Stat(gp)
 		if err != nil{
-			ctx.Application().Logger().Error("DatasetUpload error,",err)
+			ctx.Application().Logger().Errorf("DatasetUpload error: %v",err)
 			res.FailMsg("unexpacted error.")
 			return
 		}

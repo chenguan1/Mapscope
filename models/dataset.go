@@ -1,14 +1,18 @@
 package models
 
-import "time"
+import (
+	"Mapscope/global"
+	"Mapscope/thirdparty/paulmach/orb"
+	"time"
+)
 
 type Dataset struct {
-	Id          string     `json:"id"`
+	Id          string     `json:"id" gorm:"primary_key"`
 	Name        string     `json:"name"`
 	Owner       string     `json:"owner"`
 	Size        int64      `json:"size"`
-	Features    int        `json:"features"`
-	Bounds      [4]float64 `json:"bounds"`
+	FeatureCount    int    `json:"feature_count"`
+	Extent      orb.Bound `json:"extent" gorm:"type:json"`
 	Created     time.Time  `json:"created"`
 	Modified    time.Time  `json:"modified"`
 	Description string     `json:"description"`
@@ -18,11 +22,12 @@ type Dataset struct {
 	TableName string `json:"-"`
 
 	GeoType GeoType  `json:"geotype"`
-	Fields  []string `json:"fields"`
+	Fields  string `json:"fields"` // , , ,
 
 }
 
 // 保存dataset到数据库中
 func (dt *Dataset)Save() error {
+	db := global.GetDb()
 	return db.Create(dt).Error
 }

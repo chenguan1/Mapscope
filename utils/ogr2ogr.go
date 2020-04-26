@@ -77,6 +77,8 @@ func Ogr2Db(file_in string, p Ogr2dbparams) error {
 		pms = strings.Split(paramsString, ",")
 	}
 
+	fmt.Println(pms)
+
 	cmd := exec.Command("ogr2ogr", pms...)
 
 	var stdoutBuf, stderrBuf bytes.Buffer

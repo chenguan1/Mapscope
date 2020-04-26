@@ -1,0 +1,9 @@
+[db]
+host = "localhost"      # postgis database host
+port = 5432             # postgis database port
+database = "mapscope"    # postgis database name
+user = "postgres"       # postgis database user
+password = "111111"     # postgis database password
+
+[paths]
+data = "./data"

@@ -1,8 +1,12 @@
 package models
 
 import (
+	"Mapscope/global"
+	"Mapscope/thirdparty/paulmach/orb"
 	"Mapscope/utils"
 	"fmt"
+	"github.com/spf13/viper"
+	"strings"
 	"time"
 )
 
@@ -24,6 +28,7 @@ type Datasource struct {
 // create or update datasource
 // save to database, datasorces table
 func (ds *Datasource) Save() error {
+	db := global.GetDb()
 	return db.Create(ds).Error
 }
 
@@ -39,11 +44,11 @@ func (ds *Datasource) ToDataset() (*Dataset, error)  {
 
 	// 参数
 	ps := utils.NewOgr2DbParams()
-	ps.Pghost = "localhost"
-	ps.Pgport = "5432"
-	ps.Pguser = "postgres"
-	ps.Pgpswd = "123456"
-	ps.Dbname = "mapscope"
+	ps.Pghost = viper.GetString("db.host")
+	ps.Pgport = viper.GetString("db.port")
+	ps.Pguser = viper.GetString("db.user")
+	ps.Pgpswd = viper.GetString("db.password")
+	ps.Dbname = viper.GetString("db.database")
 	ps.Srs_t =  "EPSG:4326"
 	ps.GeoName = "geom"
 	ps.TableName = tableName
@@ -54,25 +59,40 @@ func (ds *Datasource) ToDataset() (*Dataset, error)  {
 		return nil, fmt.Errorf("Datasource to database failed. err: %v", err)
 	}
 
-	// 类型
+	// dataset 信息
+	para := utils.OgrinfoPgParams{
+		Host:viper.GetString("db.host"),
+		Port:viper.GetString("db.port"),
+		Username:viper.GetString("db.user"),
+		Password:viper.GetString("db.password"),
+		DbName:viper.GetString("db.database"),
+	}
+
+	info ,err := utils.OgrinfoPg(para,tableName)
+	if err != nil{
+		return nil, fmt.Errorf("Get Dataset info failed, err :%v", err)
+	}
+
+	extend := orb.Bound{
+		Min:orb.Point{info.Extent[0],info.Extent[1]},
+		Max:orb.Point{info.Extent[2],info.Extent[3]},
+	}
 
 	dt := &Dataset{
 		Id:sid,
-		Name:ds.Name,
+		Name:info.LayerName,
+		TableName:tableName,
 		Owner:ds.Owner,
 		Size:ds.Size,
-		Features:0,
-		Bounds:[4]float64{0,0,0,0},
+		FeatureCount:info.FeatureCount,
+		Extent:extend,
 		Created:time.Now(),
 		Modified:time.Now(),
 		Description:"",
 		Source:ds.Id,
-		TableName:tableName,
-		GeoType:"....",
-		Fields:[]string{},
+		GeoType:GeoType(info.GeoType),
+		Fields:strings.Join(info.Fields,","),
 	}
-
-
 
 	return dt, nil
 }

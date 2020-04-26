@@ -1,11 +1,22 @@
 package main
 
 import (
+	"Mapscope/global"
+	"Mapscope/models"
 	"Mapscope/server"
-	"fmt"
 )
 
 func main() {
-	fmt.Println("hello mapscope")
+	err := global.InitGlobal()
+	if err != nil{
+		panic(err)
+	}
+	defer global.Clear()
+
+	db := global.GetDb()
+	db.AutoMigrate(&models.Datasource{})
+	db.AutoMigrate(&models.Dataset{})
+
+
 	server.Run()
 }
