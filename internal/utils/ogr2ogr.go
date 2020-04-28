@@ -1,10 +1,10 @@
 package utils
 
 import (
+	"Mapscope/internal/thirdparty/teris-io/shortid"
 	"bytes"
 	"fmt"
 	"github.com/axgle/mahonia"
-	"github.com/teris-io/shortid"
 	"io"
 	"os"
 	"os/exec"
@@ -25,7 +25,7 @@ type Ogr2dbparams struct {
 }
 
 func NewOgr2DbParams() Ogr2dbparams {
-	sid, _ := shortid.Generate()
+	sid, _ := shortid.GenerateLower()
 	return Ogr2dbparams{
 		Pghost:    "localhost",
 		Pgport:    "5432",

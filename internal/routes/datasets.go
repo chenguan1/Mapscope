@@ -2,7 +2,6 @@ package routes
 
 import (
 	"Mapscope/internal/config"
-	"Mapscope/internal/database"
 	"Mapscope/internal/models"
 	"Mapscope/internal/services"
 	"Mapscope/internal/utils"
@@ -218,9 +217,9 @@ func DatasetUpload(ctx context.Context)  {
 	res.DoneData(dts)
 }
 
-//
+// 获取数据切片
 func DatasetTile(ctx context.Context)  {
-	user := ctx.Params().Get("username")
+	//user := ctx.Params().Get("username")
 	dtid := ctx.Params().Get("dataset_id")
 
 	zoom, _ := strconv.Atoi(ctx.Params().Get("zoom"))
@@ -229,34 +228,23 @@ func DatasetTile(ctx context.Context)  {
 	y,_ := strconv.Atoi(yformat[0])
 	format := "."+yformat[1]
 
-	ctx.Application().Logger().Info(user,"  ",dtid,"  ",zoom,"  ",x,"  ",y,"  ",format)
-	ctx.WriteString("..")
+	res := utils.NewRes(ctx)
 
-}
+	// 用户认证
 
-func getMvt(tableName, colName string, z, x, y int) ([]byte,error) {
-	queryFmt := `
-	WITH mvtgeom AS
-	(SELECT ST_AsMVTGeom(%v, ST_TileEnvelope(%v,%v,%v)) AS geom,"id","code","name","fclass"
-	FROM %v 
-	WHERE ST_Intersects(%v, ST_TileEnvelope(%v,%v,%v)))
-	SELECT ST_AsMvt(mvtgeom.*,'%v') AS mvt
-	FROM mvtgeom
-`
-
-	type geoItem struct {
-		Mvt []byte `gorm:"column:mvt"`
+	// 获取切片
+	if format == ".mvt"{
+		mvtbuf,err := services.DatasetToMvtBuf(dtid, zoom, x, y)
+		if err != nil{
+			ctx.Application().Logger().Errorf("DatasetTile, get mvt failed, err: %v", err)
+			res.FailMsg("get mvt tile failed.")
+			return
+		}
+		ctx.ContentType("application/vnd.mapbox-vector-tile")
+		ctx.Binary(mvtbuf)
+	}else {
+		ctx.Application().Logger().Errorf("DatasetTile, format %s not surpported.", format)
+		res.FailMsg(fmt.Sprintf("format %s not surported.", format))
+		return
 	}
-
-
-	queryStr := fmt.Sprintf(queryFmt,colName,z,x,y,tableName,colName,z,x,y,tableName)
-
-	//fmt.Println(queryStr)
-
-	var gi geoItem
-	err := database.Get().Raw(queryStr).Scan(&gi).Error
-	if err != nil{
-		return nil, err
-	}
-	return gi.Mvt, nil
 }

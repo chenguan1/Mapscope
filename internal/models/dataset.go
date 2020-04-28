@@ -23,7 +23,8 @@ type Dataset struct {
 
 	GeoType GeoType  `json:"geotype"`
 	Fields  string `json:"fields"` // , , ,
-
+	EditionNo int `json:"edition_no"` // 版本号 0 开始
+	Edited bool `json:"edited"` // 被编辑过，则需要提交版本更新，提交更新后，备份当前数据，并Version++
 }
 
 // 保存dataset到数据库中

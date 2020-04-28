@@ -1,10 +1,125 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Mapscope</title>
+    <meta charset='utf-8' />
+    <title>Add a third party vector tile source</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v1.9.1/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v1.9.1/mapbox-gl.css" rel="stylesheet" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+
+        #features {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 50%;
+            overflow: auto;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+    </style>
 </head>
+
 <body>
-<h1>Hello Mapscope</h1>
+<div id='map'></div>
+<pre id="features"></pre>
+<script>
+    var paints = {"circle":{"circle-color":"blue","circle-radius":3},"line":{"line-width":1.5,"line-color":"blue"},"fill":{"fill-color":"blue","fill-opacity":0.1,"fill-outline-color":"blue"}};
+
+    mapboxgl.accessToken = 'pk.eyJ1IjoicXEyOTQxODczNDkiLCJhIjoiY2s4c3oydGVsMGZtcDNlbWNveWNwb25uZCJ9.csxyoVWt57idM1cFuygutA';
+    var tileset = 'mapbox.streets';
+    var map = new mapboxgl.Map({
+        container: 'map',
+        //北京
+        zoom: 14,
+        center: [116.3900, 39.9209],
+        style: 'mapbox://styles/mapbox/light-v9',
+        hash: false
+    });
+
+    map.on('load', function loaded() {
+        map.addSource('source_osm_traffic', {
+            type: 'vector',
+            tiles: ['http://127.0.0.1:8080/datasets/v1/gray/_gv9nzewr/{z}/{x}/{y}.mvt']
+        });
+
+        map.addSource('source_osm_river', {
+            type: 'vector',
+            tiles: ['http://127.0.0.1:8080/datasets/v1/gray/vafwpz6zr/{z}/{x}/{y}.mvt']
+        });
+
+        map.addSource('source_osm_building', {
+            type: 'vector',
+            tiles: ['http://127.0.0.1:8080/datasets/v1/gray/hpvhhw6wr/{z}/{x}/{y}.mvt']
+        });
+
+        map.addLayer({
+            "id": "osm_traffic",
+            "type": "circle",
+            "paint": paints["circle"],
+            "source": "source_osm_traffic",
+            "source-layer":"_gv9nzewr"
+        });
+
+        map.addLayer({
+            "id": "osm_river",
+            "type": "line",
+            "paint": paints["line"],
+            "source": "source_osm_river",
+            "source-layer":"vafwpz6zr"
+        });
+
+        map.addLayer({
+            "id": "osm_building",
+            "type": "fill",
+            "paint": paints["fill"],
+            "source": "source_osm_building",
+            "source-layer":"hpvhhw6wr"
+        });
+
+    });
+    map.on('mousemove', function(e) {
+        var features = map.queryRenderedFeatures(e.point);
+
+// Limit the number of properties we're displaying for
+// legibility and performance
+        var displayProperties = [
+            'type',
+            'properties',
+            'id',
+            'layer',
+            'source',
+            'sourceLayer',
+            'state'
+        ];
+
+        var displayFeatures = features.map(function(feat) {
+            var displayFeat = {};
+            displayProperties.forEach(function(prop) {
+                displayFeat[prop] = feat[prop];
+            });
+            return displayFeat;
+        });
+
+        document.getElementById('features').innerHTML = JSON.stringify(
+                displayFeatures,
+                null,
+                2
+        );
+    });
+
+</script>
 </body>
 </html>

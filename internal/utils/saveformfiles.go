@@ -2,8 +2,8 @@ package utils
 
 import (
 	"Mapscope/internal/models"
+	"Mapscope/internal/thirdparty/teris-io/shortid"
 	"github.com/kataras/iris/v12/context"
-	"github.com/teris-io/shortid"
 	"mime/multipart"
 	"os"
 	"path/filepath"
@@ -16,7 +16,7 @@ func SaveFormFiles(ctx context.Context, folder string) []models.FileUped {
 	files := make([]models.FileUped,0)
 
 	ctx.UploadFormFiles(folder, func(i context.Context, header *multipart.FileHeader) {
-		sid, _ := shortid.Generate()
+		sid, _ := shortid.GenerateLower()
 		ext := filepath.Ext(header.Filename)
 		name := strings.TrimSuffix(header.Filename, ext)
 		ext = strings.ToLower(ext)
