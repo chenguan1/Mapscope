@@ -20,16 +20,22 @@ func SetRoutes(app *iris.Application) {
 		ds.Get("/{username}/{dataset_id}", DatasetRetrive)                                 // Retrieve a dataset
 		ds.Patch("/{username}/{dataset_id}", DatasetUpdate)                                // Retrieve a dataset
 		ds.Delete("/{username}/{dataset_id}", DatasetDelete)                               // Delete a dataset
-		ds.Get("/{username}/{dataset_id}/features", DatasetFeatures)                       // List features
-		ds.Post("/{username}/{dataset_id}/features", DatasetFeaturesPut)                   // List features
-		ds.Put("/{username}/{dataset_id}/features/{feature_id}", DatasetFeaturesInsert)    // Insert or update a feature
-		ds.Get("/{username}/{dataset_id}/features/{feature_id}", DatasetFeaturesRetrive)   // Retrieve a feature
-		ds.Delete("/{username}/{dataset_id}/features/{feature_id}", DatasetFeaturesDelete) // Retrieve a feature
+		//ds.Get("/{username}/{dataset_id}/features", DatasetFeatures)                       // List features
+		//ds.Post("/{username}/{dataset_id}/features", DatasetFeaturesPut)                   // List features
+		//ds.Put("/{username}/{dataset_id}/features/{feature_id}", DatasetFeaturesUpdate)    // Insert or update a feature
+		//ds.Get("/{username}/{dataset_id}/features/{feature_id}", DatasetFeaturesRetrive)   // Retrieve a feature
+		//ds.Delete("/{username}/{dataset_id}/features/{feature_id}", DatasetFeaturesDelete) // Delete a feature
 
 		// 自己定义的接口，非mapbox定义的接口
 		// 上传数据集，支持zip包，geojson，json，shp(zip)
-		ds.Post("/{username}", DatasetUpload)
-		ds.Get(`/{username}/{dataset_id}/{zoom:int}/{x:int}/{yformat:string regexp(^[0-9]+.[a-z]+)}`, DatasetTile)
+		ds.Post("/{username}", DatasetUpload) // ok
+		ds.Get(`/{username}/{dataset_id}/{zoom:int}/{x:int}/{yformat:string regexp(^[0-9]+.[a-z]+)}`, DatasetTile) // format=mvt ok
+
+		ds.Get("/{username}/{dataset_id}/features", DatasetFeatures)                       // List features
+		ds.Post("/{username}/{dataset_id}/features", DatasetFeaturesInsert)                // features insert
+		ds.Get("/{username}/{dataset_id}/features/{feature_id}", DatasetFeaturesRetrive)   // Retrieve a feature
+		ds.Post("/{username}/{dataset_id}/features/{feature_id}", DatasetFeaturesUpdate)   // features update
+		ds.Delete("/{username}/{dataset_id}/features/{feature_id}", DatasetFeaturesDelete) // Delete a feature
 	}
 
 	// fonts

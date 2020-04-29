@@ -41,9 +41,9 @@ func DatasetsFromUpload(files []models.FileUped, user string) ([]models.Dataset,
 }
 
 // dataset to mvt
-func DatasetToMvtBuf(tileset_id string, zoom, x, y int) ([]byte, error) {
+func DatasetToMvtBuf(dataset_id string, zoom, x, y int) ([]byte, error) {
 	var dt models.Dataset
-	err := database.Get().Where(models.Dataset{Id:tileset_id}).Find(&dt).Error
+	err := database.Get().Where(models.Dataset{Id:dataset_id}).Find(&dt).Error
 	if err != nil{
 		return nil, fmt.Errorf("DatasetToMvtBuf failed, err: %v", err)
 	}

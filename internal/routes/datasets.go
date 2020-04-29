@@ -124,16 +124,37 @@ func DatasetFeatures(ctx context.Context) {
 	ctx.WriteString("return the json list of features.")
 }
 
-func DatasetFeaturesPut(ctx context.Context) {
-	//
+func DatasetFeaturesUpdate(ctx context.Context) {
+	user := ctx.Params().Get("username")
+	dtid := ctx.Params().Get("dataset_id")
+	ftid := ctx.Params().Get("feature_id")
+
+	ctx.Application().Logger().Printf("update feature %v.%v.%v", user, dtid, ftid)
+
+	res := utils.NewRes(ctx)
+
+	gjson, err := ctx.GetBody()
+	if err != nil{
+		res.FailMsg("failed to get body.")
+		ctx.Application().Logger().Errorf("DatasetFeaturesUpdate failed get body. err: %v", err)
+		return
+	}
+
+
+	err = services.FeatureUpdate(dtid,ftid,gjson)
+	if err != nil{
+		res.FailMsg("failed update feature.")
+		ctx.Application().Logger().Errorf("DatasetFeaturesUpdate.FeatureUpdate failed get body. err: %v", err)
+		return
+	}
+
 }
 
 func DatasetFeaturesInsert(ctx context.Context) {
 	user := ctx.Params().Get("username")
 	dtid := ctx.Params().Get("dataset_id")
-	ftid := ctx.Params().Get("feature_id")
 
-	ctx.Application().Logger().Printf("insert feature %v.%v,%v", user, dtid, ftid)
+	ctx.Application().Logger().Printf("insert feature %v.%v", user, dtid)
 
 	geojson := make(map[string]interface{})
 	ctx.ReadJSON(&geojson)
@@ -147,28 +168,16 @@ func DatasetFeaturesRetrive(ctx context.Context) {
 
 	ctx.Application().Logger().Printf("retrive a feature %v.%v,%v", user, dtid, ftid)
 
-	geojson := `
-{
-  "id": "{feature_id}",
-  "type": "Feature",
-  "geometry": {
-    "type": "Polygon",
-    "coordinates": [
-      [
-        [ 100, 0 ],
-        [ 101, 0 ],
-        [ 101, 1 ],
-        [ 100, 1 ],
-        [ 100, 0 ]
-      ]
-    ]
-  },
-  "properties": {
-    "prop0": "value0"
-  }
-}
-`
-	ctx.WriteString(geojson)
+	res := utils.NewRes(ctx)
+
+	gj,err := services.FeatureGetByGeojson(dtid,ftid)
+	if err != nil{
+		ctx.Application().Logger().Errorf("retrive feature failed err: %v", err)
+		res.FailMsg("retrive feature failed.")
+		return
+	}
+
+	res.DoneData(gj)
 }
 
 func DatasetFeaturesDelete(ctx context.Context) {

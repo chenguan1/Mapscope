@@ -20,7 +20,7 @@ func Run() {
 
 	database.Get().AutoMigrate(&models.Datasource{})
 	database.Get().AutoMigrate(&models.Dataset{})
-	database.Get().AutoMigrate(&models.Edition{})
+	database.Get().AutoMigrate(&models.DataBackup{})
 
 	app := iris.Default()
 	app.Logger().SetLevel("debug")
