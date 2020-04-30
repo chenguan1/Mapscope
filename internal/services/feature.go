@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/paulmach/orb/geojson"
+	"strings"
 
 	//gogeo "github.com/paulmach/go.geojson"
 )
@@ -55,16 +56,38 @@ func FeatureUpdate(dataset_id string, feature_id string, gjson []byte) error {
 		return fmt.Errorf("FeatureUpdate failed, err: %v", err)
 	}
 
-	/*ft, err := geojson.UnmarshalFeature(gjson)
-	if err != nil{
-		return fmt.Errorf("FeatureUpdate unmarshal feature failed, err: %v", err)
-	}*/
-
 	ft,err := geojson.UnmarshalFeature(gjson)
+	if err != nil{
+		return fmt.Errorf("FeatureUpdate failed, err: %v", err)
+	}
+
+	// geom
 	wt := wkt.MarshalString(ft.Geometry)
 	fmt.Println(wt)
 
+	// 属性
+	setvalue := ""
+	fds := strings.Split(dt.Fields, ",")
+	ps := map[string]interface{}(ft.Properties)
+	for _,key := range fds{
+		v,ok := ps[key]
+		if ok{
+			setvalue = setvalue + fmt.Sprintf("%v='%v',",key,v)
+		}
+	}
+	setvalue = setvalue + fmt.Sprintf("geom = st_geomfromtext('%v',%v)", wt, 4326)
 
+	// 更新
+	sql := fmt.Sprintf("update %s\nset %s \nwhere gid = %v", dt.TableName, setvalue, feature_id)
+	fmt.Println(sql)
+
+	dbrst := db.Raw(sql)
+	if dbrst.Error != nil{
+		return fmt.Errorf("FeatureUpdate failed, err: %v", dbrst.Error)
+	}
+	/*if db.Raw(sql).RowsAffected == 0{
+		return fmt.Errorf("FeatureUpdate failed, err: %v", "rows affected == 0")
+	}*/
 
 	return nil
 }
