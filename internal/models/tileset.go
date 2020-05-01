@@ -34,30 +34,29 @@ type TilesetCreateForm struct {
 	Description string `json:"description"`
 }
 
-
 type TilesetMetadata struct {
-	Bounds [4]float64
-	Center [3]float64
-	Created time.Time
-	Filesize int
-	Format string
-	Id string
-	MapboxLogo bool `json:"mapbox_logo"`
-	Maxzoom int
-	Minzoom int
-	Modified time.Time
-	Name string
-	Private bool
-	Scheme string
-	Tilejson string
-	Tiles []string
+	Bounds       [4]float64
+	Center       [3]float64
+	Created      time.Time
+	Filesize     int
+	Format       string
+	Id           string
+	MapboxLogo   bool `json:"mapbox_logo"`
+	Maxzoom      int
+	Minzoom      int
+	Modified     time.Time
+	Name         string
+	Private      bool
+	Scheme       string
+	Tilejson     string
+	Tiles        []string
 	VectorLayers []TilesetVectorLayer
-	Version string
-	Webpage string
+	Version      string
+	Webpage      string
 }
 
 // https://docs.mapbox.com/api/maps/#example-response-retrieve-tilejson-metadata
 type TilesetVectorLayer struct {
 	Description string
-	Fields map[string]string
+	Fields      map[string]string
 }

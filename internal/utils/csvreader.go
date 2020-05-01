@@ -3,8 +3,8 @@ package utils
 import (
 	"encoding/csv"
 	"fmt"
-	"io"
 	"github.com/axgle/mahonia"
+	"io"
 )
 
 func CsvReader(r io.Reader, encoding string) (*csv.Reader, error) {

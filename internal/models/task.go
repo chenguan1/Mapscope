@@ -3,9 +3,8 @@ package models
 import (
 	"Mapscope/internal/database"
 	"time"
-
-//_ "github.com/mattn/go-sqlite3" // import sqlite3 driver
-// "github.com/paulmach/orb/encoding/wkb"
+	//_ "github.com/mattn/go-sqlite3" // import sqlite3 driver
+	// "github.com/paulmach/orb/encoding/wkb"
 )
 
 // Task 数据导入信息预览
@@ -42,4 +41,3 @@ func (task *Task) update() error {
 	}
 	return nil
 }
-

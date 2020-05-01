@@ -26,5 +26,3 @@ func (ds *Datasource) Save() error {
 	db := database.Get()
 	return db.Create(ds).Error
 }
-
-

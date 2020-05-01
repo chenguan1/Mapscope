@@ -140,19 +140,19 @@ func TilesetRecipeUpdate(ctx context.Context) {
 
 }
 
-func TilesetList(ctx context.Context)  {
+func TilesetList(ctx context.Context) {
 	username := ctx.Params().Get("username")
 	ctx.Application().Logger().Debug(username)
 	ts := models.Tileset{}
-	tslist := make([]models.Tileset,0)
+	tslist := make([]models.Tileset, 0)
 	tslist = append(tslist, ts)
 	ctx.JSON(tslist)
 }
 
-func TilesetDelete(ctx context.Context)  {
+func TilesetDelete(ctx context.Context) {
 	ctx.StatusCode(http.StatusNoContent)
 }
 
-func TilesetMetadata(ctx context.Context)  {
+func TilesetMetadata(ctx context.Context) {
 	ctx.StatusCode(http.StatusNoContent)
 }

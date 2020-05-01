@@ -10,9 +10,9 @@ import (
 	"strings"
 )
 
-func EnsurePathExist(path string)  {
-	path,_ = filepath.Abs(path)
-	if _,err := os.Stat(path); os.IsNotExist(err){
+func EnsurePathExist(path string) {
+	path, _ = filepath.Abs(path)
+	if _, err := os.Stat(path); os.IsNotExist(err) {
 		os.MkdirAll(path, os.ModePerm)
 	}
 }
@@ -41,8 +41,8 @@ func LikelyEncoding(file string) string {
 
 // 解压zip文件，到指定的目录中，返回解压后的所有文件
 func UnzipFile(zipfile string, outdir string) ([]string, error) {
-	files := make([]string,0)
-	if outdir == ""{
+	files := make([]string, 0)
+	if outdir == "" {
 		outdir = strings.TrimSuffix(zipfile, filepath.Ext(zipfile))
 	}
 	EnsurePathExist(outdir)
@@ -53,19 +53,19 @@ func UnzipFile(zipfile string, outdir string) ([]string, error) {
 	}
 	defer zr.Close()
 
-	for _,f := range zr.File{
+	for _, f := range zr.File {
 		name := f.Name
-		if f.NonUTF8{
-			ns ,err := simplifiedchinese.GB18030.NewDecoder().String(f.Name)
-			if err == nil{
+		if f.NonUTF8 {
+			ns, err := simplifiedchinese.GB18030.NewDecoder().String(f.Name)
+			if err == nil {
 				name = ns
-			}else {
-				logrus.Warn("unzip file error,",f.Name)
+			} else {
+				logrus.Warn("unzip file error,", f.Name)
 				return nil, err
 			}
 		}
-		pn := filepath.Join(outdir,name)
-		if f.FileInfo().IsDir(){
+		pn := filepath.Join(outdir, name)
+		if f.FileInfo().IsDir() {
 			EnsurePathExist(pn)
 			continue
 		}
@@ -88,17 +88,17 @@ func UnzipFile(zipfile string, outdir string) ([]string, error) {
 			logrus.Warnf("Cannot unzip %s: %v", zipfile, err)
 			return nil, err
 		}
-		files = append(files,pn)
+		files = append(files, pn)
 	}
 	return files, nil
 }
 
 // 根据后缀名过滤 exts .json.geojson.shp.zip
 func FilterByExt(files []string, exts string) []string {
-	fs := make([]string,0)
-	for _, f := range files{
+	fs := make([]string, 0)
+	for _, f := range files {
 		if strings.Contains(exts, strings.ToLower(filepath.Ext(f))) {
-			fs = append(fs,f)
+			fs = append(fs, f)
 		}
 	}
 	return fs
@@ -120,7 +120,7 @@ func CopyFile(dstName, srcName string) (written int64, err error) {
 }
 
 func PathExist(path string) bool {
-	if _,err := os.Stat(path); os.IsExist(err){
+	if _, err := os.Stat(path); os.IsExist(err) {
 		return true
 	}
 	return false

@@ -18,7 +18,7 @@ func Initialize() error {
 		viper.GetString("db.database"))
 
 	var err error
-	db,err = gorm.Open("postgres", conn)
+	db, err = gorm.Open("postgres", conn)
 	if err != nil {
 		return fmt.Errorf("init gorm db error, details: %s", err)
 	}

@@ -44,7 +44,22 @@ const (
 )
 
 //FieldTypes 支持的字段类型
-var FieldTypes = []FieldType{String, Int, Float, Date, Bool}
+//var FieldTypes = []FieldType{String, Int, Float, Date, Bool}
+var FieldTypes = struct {
+	Int    string
+	Bool   string
+	Float  string
+	String string
+	Date   string
+	Json   string
+}{
+	Int:    "Int",
+	Bool:   "Bool",
+	Float:  "Float",
+	String: "String",
+	Date:   "Date",
+	Json:   "Json",
+}
 
 // DataFormat is an enum that defines the data format of a file
 type DataFormat string

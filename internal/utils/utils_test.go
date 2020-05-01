@@ -5,11 +5,10 @@ import (
 	"testing"
 )
 
-
 func TestConvertShp2Geojson(t *testing.T) {
 	return
 	err := ConvertShp2Geojson("./test/traffic.shp", "./test/traffic.geojson")
-	if err != nil{
+	if err != nil {
 		t.Fail()
 	}
 }
@@ -17,7 +16,7 @@ func TestConvertShp2Geojson(t *testing.T) {
 func TestConvertCsv2Geojson(t *testing.T) {
 	return
 	err := ConvertCsv2Geojson("./test/0-2.csv", "./test/0.geojson")
-	if err != nil{
+	if err != nil {
 		t.Fail()
 	}
 }
@@ -34,22 +33,22 @@ func TestOgr2Db(t *testing.T) {
 
 	in_json := "./test/0.geojson"
 	err := Ogr2Db(in_json, para)
-	if err != nil{
+	if err != nil {
 		t.Errorf("Ogr2Db Failed.err: %v", err)
 	}
 }
 
 func TestOgrinfoPg(t *testing.T) {
 	para := OgrinfoPgParams{
-		Host:"localhost",
-		Port:"5432",
-		Username:"postgres",
-		Password:"111111",
-		DbName:"mapscope",
+		Host:     "localhost",
+		Port:     "5432",
+		Username: "postgres",
+		Password: "111111",
+		DbName:   "mapscope",
 	}
 
-	info ,err := OgrinfoPg(para,"dataset_test0")
-	if err != nil{
+	info, err := OgrinfoPg(para, "dataset_test0")
+	if err != nil {
 		t.Error(err)
 	}
 

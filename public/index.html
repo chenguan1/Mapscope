@@ -52,17 +52,17 @@
     map.on('load', function loaded() {
         map.addSource('source_osm_traffic', {
             type: 'vector',
-            tiles: ['http://127.0.0.1:8080/datasets/v1/gray/_gv9nzewr/{z}/{x}/{y}.mvt']
+            tiles: ['http://localhost:8080/datasets/v1/gray/_gv9nzewr/{z}/{x}/{y}.mvt']
         });
 
         map.addSource('source_osm_river', {
             type: 'vector',
-            tiles: ['http://127.0.0.1:8080/datasets/v1/gray/vafwpz6zr/{z}/{x}/{y}.mvt']
+            tiles: ['http://localhost:8080/datasets/v1/gray/vafwpz6zr/{z}/{x}/{y}.mvt']
         });
 
         map.addSource('source_osm_building', {
             type: 'vector',
-            tiles: ['http://127.0.0.1:8080/datasets/v1/gray/hpvhhw6wr/{z}/{x}/{y}.mvt']
+            tiles: ['http://localhost:8080/datasets/v1/gray/hpvhhw6wr/{z}/{x}/{y}.mvt']
         });
 
         map.addLayer({

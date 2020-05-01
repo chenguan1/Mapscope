@@ -13,7 +13,7 @@ import "time"
 type DataBackup struct {
 	Id          int       `json:"id" gorm:"primary_key;AUTO_INCREMENT"`
 	Dataset     string    `json:"dataset"` // dataset id
-	Source      string    `json:"source"` // datasource id // 可为空
+	Source      string    `json:"source"`  // datasource id // 可为空
 	Version     int       `json:"version"`
 	TableName   string    `json:"-"`
 	Created     time.Time `json:"created"`

@@ -57,8 +57,7 @@ func Convert(csvFile, jsonFile string) error {
 	keep := "n"
 	threads := 1
 	suffix := ""
-	colLong, colLat := "",""
-
+	colLong, colLat := "", ""
 
 	/////////////////////////////////////////////////////////
 

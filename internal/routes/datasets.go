@@ -108,20 +108,27 @@ func DatasetDelete(ctx context.Context) {
 func DatasetFeatures(ctx context.Context) {
 	user := ctx.Params().Get("username")
 	dtid := ctx.Params().Get("dataset_id")
-	limit := ctx.URLParam("limit")
-	start := ctx.URLParam("start")
+	limit := ctx.URLParamDefault("limit", "10")
+	start := ctx.URLParamDefault("start", "0")
 
-	//
-	// limit [1,100]
-	if limit == "" {
-		limit = "10"
+	lmt, _ := strconv.Atoi(limit)
+	srt, _ := strconv.Atoi(start)
+	if lmt > 100 {
+		lmt = 100
 	}
 
-	// start: The ID of the feature after which to start the listing.
-
 	ctx.Application().Logger().Printf("get features %v.%v,%v,%v", user, dtid, limit, start)
+	res := utils.NewRes(ctx)
 
-	ctx.WriteString("return the json list of features.")
+	gj, err := services.FeatureListByGeojson(dtid, srt, lmt)
+	if err != nil {
+		ctx.Application().Logger().Errorf("retrive feature failed err: %v", err)
+		res.FailMsg("retrive feature failed.")
+		return
+	}
+
+	res.DoneData(gj)
+
 }
 
 func DatasetFeaturesUpdate(ctx context.Context) {
@@ -134,31 +141,47 @@ func DatasetFeaturesUpdate(ctx context.Context) {
 	res := utils.NewRes(ctx)
 
 	gjson, err := ctx.GetBody()
-	if err != nil{
+	if err != nil {
 		res.FailMsg("failed to get body.")
 		ctx.Application().Logger().Errorf("DatasetFeaturesUpdate failed get body. err: %v", err)
 		return
 	}
 
-
-	err = services.FeatureUpdate(dtid,ftid,gjson)
-	if err != nil{
+	err = services.FeatureUpdate(dtid, ftid, gjson)
+	if err != nil {
 		res.FailMsg("failed update feature.")
 		ctx.Application().Logger().Errorf("DatasetFeaturesUpdate.FeatureUpdate failed get body. err: %v", err)
 		return
 	}
 
+	res.Done()
 }
 
 func DatasetFeaturesInsert(ctx context.Context) {
+
 	user := ctx.Params().Get("username")
 	dtid := ctx.Params().Get("dataset_id")
+	ftid := ctx.Params().Get("feature_id")
 
-	ctx.Application().Logger().Printf("insert feature %v.%v", user, dtid)
+	ctx.Application().Logger().Printf("update feature %v.%v.%v", user, dtid, ftid)
 
-	geojson := make(map[string]interface{})
-	ctx.ReadJSON(&geojson)
-	ctx.JSON(geojson)
+	res := utils.NewRes(ctx)
+
+	gjson, err := ctx.GetBody()
+	if err != nil {
+		res.FailMsg("failed to get body.")
+		ctx.Application().Logger().Errorf("DatasetFeaturesInsert failed get body. err: %v", err)
+		return
+	}
+
+	err = services.FeatureInsert(dtid, gjson)
+	if err != nil {
+		res.FailMsg("failed update feature.")
+		ctx.Application().Logger().Errorf("DatasetFeaturesInsert.FeatureUpdate failed get body. err: %v", err)
+		return
+	}
+
+	res.Done()
 }
 
 func DatasetFeaturesRetrive(ctx context.Context) {
@@ -170,8 +193,8 @@ func DatasetFeaturesRetrive(ctx context.Context) {
 
 	res := utils.NewRes(ctx)
 
-	gj,err := services.FeatureGetByGeojson(dtid,ftid)
-	if err != nil{
+	gj, err := services.FeatureGetByGeojson(dtid, ftid)
+	if err != nil {
 		ctx.Application().Logger().Errorf("retrive feature failed err: %v", err)
 		res.FailMsg("retrive feature failed.")
 		return
@@ -187,13 +210,22 @@ func DatasetFeaturesDelete(ctx context.Context) {
 
 	ctx.Application().Logger().Printf("delete a feature %v.%v,%v", user, dtid, ftid)
 
-	ctx.StatusCode(http.StatusNoContent)
+	res := utils.NewRes(ctx)
+
+	err := services.FeatureDelete(dtid, ftid)
+	if err != nil {
+		ctx.Application().Logger().Errorf("DatasetFeaturesDelete failed err: %v", err)
+		res.FailMsg("delete feature failed.")
+		return
+	}
+
+	res.Done()
 }
 
 // 数据上传，支持shp压缩包，geojson，csv等
 // 其他格式的都转换成geojson格式的datasource，
 // 并且入库成为dataset-list
-func DatasetUpload(ctx context.Context)  {
+func DatasetUpload(ctx context.Context) {
 	user := ctx.Params().Get("username")
 
 	var err error
@@ -208,8 +240,8 @@ func DatasetUpload(ctx context.Context)  {
 	res := utils.NewRes(ctx)
 
 	// 保存上传的文件
-	files := utils.SaveFormFiles(ctx,upfolder)
-	if len(files) == 0{
+	files := utils.SaveFormFiles(ctx, upfolder)
+	if len(files) == 0 {
 		ctx.Application().Logger().Errorf("DatasetUpload SaveFormFiles, err: %v", err)
 		res.FailMsg("upload files failed.")
 		return
@@ -217,7 +249,7 @@ func DatasetUpload(ctx context.Context)  {
 
 	// 上传的数据入库成为dataset
 	dts, err := services.DatasetsFromUpload(files, user)
-	if err != nil{
+	if err != nil {
 		ctx.Application().Logger().Errorf("DatasetUpload DatasetsFromUpload, err: %v", err)
 		res.FailMsg("create dataset failed.")
 		return
@@ -227,33 +259,51 @@ func DatasetUpload(ctx context.Context)  {
 }
 
 // 获取数据切片
-func DatasetTile(ctx context.Context)  {
+func DatasetTile(ctx context.Context) {
 	//user := ctx.Params().Get("username")
 	dtid := ctx.Params().Get("dataset_id")
 
 	zoom, _ := strconv.Atoi(ctx.Params().Get("zoom"))
 	x, _ := strconv.Atoi(ctx.Params().Get("x"))
-	yformat := strings.Split(ctx.Params().Get("yformat"),".")
-	y,_ := strconv.Atoi(yformat[0])
-	format := "."+yformat[1]
+	yformat := strings.Split(ctx.Params().Get("yformat"), ".")
+	y, _ := strconv.Atoi(yformat[0])
+	format := "." + yformat[1]
 
 	res := utils.NewRes(ctx)
 
 	// 用户认证
 
 	// 获取切片
-	if format == ".mvt"{
-		mvtbuf,err := services.DatasetToMvtBuf(dtid, zoom, x, y)
-		if err != nil{
+	if format == ".mvt" || format == ".pbf" {
+		mvtbuf, err := services.DatasetToMvtBuf(dtid, zoom, x, y)
+		if err != nil {
 			ctx.Application().Logger().Errorf("DatasetTile, get mvt failed, err: %v", err)
 			res.FailMsg("get mvt tile failed.")
 			return
 		}
 		ctx.ContentType("application/vnd.mapbox-vector-tile")
 		ctx.Binary(mvtbuf)
-	}else {
+	} else {
 		ctx.Application().Logger().Errorf("DatasetTile, format %s not surpported.", format)
 		res.FailMsg(fmt.Sprintf("format %s not surported.", format))
 		return
 	}
+}
+
+// 获取Tilejson
+func DatasetTilejson(ctx context.Context)  {
+	//user := ctx.Params().Get("username")
+	dtid := ctx.Params().Get("dataset_id")
+
+	var tj *models.Tilejson
+	var err error
+
+	res := utils.NewRes(ctx)
+
+	if tj,err = services.DatasetTilejson(dtid); err != nil{
+		res.FailMsg("get tile json failed.")
+		return
+	}
+
+	res.Json(tj)
 }

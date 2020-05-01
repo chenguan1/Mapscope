@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"Mapscope/internal/models"
 	"bytes"
 	"fmt"
 	"io"
@@ -13,24 +14,23 @@ import (
 )
 
 type OgrinfoPgParams struct {
-	Host string
-	Port string
-	DbName string
+	Host     string
+	Port     string
+	DbName   string
 	Username string
 	Password string
 }
 
 type OgrInfo struct {
-	LayerName string
-	GeoType string
+	LayerName    string
+	GeoType      string
 	FeatureCount int
-	Extent [4]float64
-	Wkt string
-	FidColumn string
-	GeoColumn string
-	Fields []string
+	Extent       [4]float64
+	Wkt          string
+	FidColumn    string
+	GeoColumn    string
+	Fields       models.Fields
 }
-
 
 func OgrinfoPg(p OgrinfoPgParams, layerName string) (*OgrInfo, error) {
 	//ogrinfo -so "PG:dbname=mapscope host=localhost port=5432 user=postgres password=111111" dataset_test0
@@ -68,8 +68,8 @@ func OgrinfoPg(p OgrinfoPgParams, layerName string) (*OgrInfo, error) {
 	time.Sleep(time.Millisecond * 100)
 	rawinfo := stdoutBuf.String()
 
-	ogrinfo,err := parseOgrinfo(rawinfo)
-	if err != nil{
+	ogrinfo, err := parseOgrinfo(rawinfo)
+	if err != nil {
 		return nil, fmt.Errorf("parse dataset info failed. err: %v", err)
 	}
 
@@ -78,71 +78,71 @@ func OgrinfoPg(p OgrinfoPgParams, layerName string) (*OgrInfo, error) {
 
 func parseOgrinfo(str string) (*OgrInfo, error) {
 	layerName := regexp.MustCompile(`Layer name: .+`).FindString(str)
-	layerName = strings.TrimPrefix(layerName,"Layer name: ")
+	layerName = strings.TrimPrefix(layerName, "Layer name: ")
 	//fmt.Println(layerName)
 
 	geotype := regexp.MustCompile(`Geometry: .+`).FindString(str)
-	geotype = strings.TrimPrefix(geotype,"Geometry: ")
+	geotype = strings.TrimPrefix(geotype, "Geometry: ")
 	geotype = strings.TrimSpace(geotype)
 	//fmt.Println(geotype)
 
 	features := regexp.MustCompile(`Feature Count: .+`).FindString(str)
-	features = strings.TrimPrefix(features,"Feature Count: ")
+	features = strings.TrimPrefix(features, "Feature Count: ")
 	features = strings.TrimSpace(features)
 	fmt.Println(features)
-	featureCount,_ := strconv.Atoi(features)
+	featureCount, _ := strconv.Atoi(features)
 	//fmt.Println(featureCount)
 
 	extent := regexp.MustCompile(`Extent: .+`).FindString(str)
-	extent = strings.TrimPrefix(extent,"Extent: ")
+	extent = strings.TrimPrefix(extent, "Extent: ")
 	extent = strings.TrimSpace(extent)
 
-	nums := regexp.MustCompile(`-?[0-9]+\.*[0-9]*`).FindAllString(extent,-1)
-	if len(nums) != 4{
+	nums := regexp.MustCompile(`-?[0-9]+\.*[0-9]*`).FindAllString(extent, -1)
+	if len(nums) != 4 {
 		return nil, fmt.Errorf("cannot get extent info.")
 	}
 	var et [4]float64
-	for i,v := range nums{
-		et[i],_ = strconv.ParseFloat(v,64)
+	for i, v := range nums {
+		et[i], _ = strconv.ParseFloat(v, 64)
 	}
 	//fmt.Println(et)
 
 	wkt := regexp.MustCompile(`Layer SRS WKT:[\s\S]+]\s`).FindString(str)
-	wkt = strings.TrimSpace(strings.TrimPrefix(wkt,"Layer SRS WKT:"))
+	wkt = strings.TrimSpace(strings.TrimPrefix(wkt, "Layer SRS WKT:"))
 	//fmt.Println(wkt)
 
 	fidColumn := regexp.MustCompile(`FID Column = .+`).FindString(str)
-	fidColumn = strings.TrimPrefix(fidColumn,"FID Column = ")
+	fidColumn = strings.TrimPrefix(fidColumn, "FID Column = ")
 	fidColumn = strings.TrimSpace(fidColumn)
 	//fmt.Println(fidColumn)
 
 	geoColumn := regexp.MustCompile(`Geometry Column = .+`).FindString(str)
-	geoColumn = strings.TrimPrefix(geoColumn,"Geometry Column = ")
+	geoColumn = strings.TrimPrefix(geoColumn, "Geometry Column = ")
 	geoColumn = strings.TrimSpace(geoColumn)
 	//fmt.Println(geoColumn)
 
-	fds := make([]string,0)
-	filedsStrs := regexp.MustCompile(`.+: \w+ \([.0-9]+\)`).FindAllString(str,-1)
-	for _,s := range filedsStrs{
-		s = s[:strings.Index(s,":")]
-		fds = append(fds,s)
+	fds := models.NewFields()
+	filedsStrs := regexp.MustCompile(`.+: \w+ \([.0-9]+\)`).FindAllString(str, -1)
+	for _, s := range filedsStrs {
+		filedName := s[:strings.Index(s, ":")]
+		filedType := s[strings.Index(s, ":")+2:strings.Index(s, " (")]
+		fds.Set(filedName,filedType)
 	}
 
 	//fmt.Println(fds)
 
 	info := OgrInfo{
-		LayerName: layerName,
-		GeoType: geotype,
+		LayerName:    layerName,
+		GeoType:      geotype,
 		FeatureCount: featureCount,
-		Extent : et,
-		Wkt : wkt,
-		FidColumn : fidColumn,
-		GeoColumn : geoColumn,
-		Fields :fds,
+		Extent:       et,
+		Wkt:          wkt,
+		FidColumn:    fidColumn,
+		GeoColumn:    geoColumn,
+		Fields:       fds,
 	}
 
 	//fmt.Printf("%#v",info)
-
 
 	return &info, nil
 }

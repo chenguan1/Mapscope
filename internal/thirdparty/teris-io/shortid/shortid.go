@@ -127,10 +127,10 @@ func Generate() (string, error) {
 
 func GenerateLower() (string, error) {
 	s, err := shortid.Generate()
-	if err == nil{
+	if err == nil {
 		s = strings.ToLower(s)
 	}
-	return s,err
+	return s, err
 }
 
 // MustGenerate acts just like Generate, but panics instead of returning errors.

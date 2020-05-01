@@ -97,3 +97,9 @@ func (res *Res) DoneData(data interface{}) {
 	res.Data = data
 	res.ctx.JSON(res)
 }
+
+
+// json，直接返回
+func (res *Res) Json(data interface{})  {
+	res.ctx.JSON(data)
+}

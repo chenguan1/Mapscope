@@ -15,27 +15,26 @@ func SetRoutes(app *iris.Application) {
 	// datasets
 	ds := app.Party("/datasets/v1")
 	{
-		ds.Get("/{username}", DatasetList)                                                 // list datasets
-		ds.Post("/{username}", DatasetCreate)                                              // create a new empty dataset
-		ds.Get("/{username}/{dataset_id}", DatasetRetrive)                                 // Retrieve a dataset
-		ds.Patch("/{username}/{dataset_id}", DatasetUpdate)                                // Retrieve a dataset
-		ds.Delete("/{username}/{dataset_id}", DatasetDelete)                               // Delete a dataset
-		//ds.Get("/{username}/{dataset_id}/features", DatasetFeatures)                       // List features
-		//ds.Post("/{username}/{dataset_id}/features", DatasetFeaturesPut)                   // List features
-		//ds.Put("/{username}/{dataset_id}/features/{feature_id}", DatasetFeaturesUpdate)    // Insert or update a feature
-		//ds.Get("/{username}/{dataset_id}/features/{feature_id}", DatasetFeaturesRetrive)   // Retrieve a feature
-		//ds.Delete("/{username}/{dataset_id}/features/{feature_id}", DatasetFeaturesDelete) // Delete a feature
+		ds.Post("/{username}", DatasetCreate)                // create a new empty dataset
 
-		// 自己定义的接口，非mapbox定义的接口
-		// 上传数据集，支持zip包，geojson，json，shp(zip)
-		ds.Post("/{username}", DatasetUpload) // ok
+		ds.Get("/{username}/tile.json", DatasetList)                   // list datasets
+
+		ds.Get("/{username}/{dataset_id}", DatasetRetrive)   // Retrieve a dataset
+		ds.Patch("/{username}/{dataset_id}", DatasetUpdate)  // Retrieve a dataset
+		ds.Delete("/{username}/{dataset_id}", DatasetDelete) // Delete a dataset
+
+		// dataset
+		ds.Post("/{username}", DatasetUpload)                                                                      // 上传数据集，支持zip包，geojson，json，shp(zip) ok
 		ds.Get(`/{username}/{dataset_id}/{zoom:int}/{x:int}/{yformat:string regexp(^[0-9]+.[a-z]+)}`, DatasetTile) // format=mvt ok
+		ds.Get("/{username}/{dataset_id}/tile.json", DatasetTilejson)
+		ds.Head("/{username}/{dataset_id}/tile.json", DatasetTilejson)
 
-		ds.Get("/{username}/{dataset_id}/features", DatasetFeatures)                       // List features
-		ds.Post("/{username}/{dataset_id}/features", DatasetFeaturesInsert)                // features insert
-		ds.Get("/{username}/{dataset_id}/features/{feature_id}", DatasetFeaturesRetrive)   // Retrieve a feature
-		ds.Post("/{username}/{dataset_id}/features/{feature_id}", DatasetFeaturesUpdate)   // features update
-		ds.Delete("/{username}/{dataset_id}/features/{feature_id}", DatasetFeaturesDelete) // Delete a feature
+		// feature
+		ds.Get("/{username}/{dataset_id}/features", DatasetFeatures)                       // List features      ok
+		ds.Post("/{username}/{dataset_id}/features", DatasetFeaturesInsert)                // features insert    ok
+		ds.Get("/{username}/{dataset_id}/features/{feature_id}", DatasetFeaturesRetrive)   // Retrieve a feature ok
+		ds.Post("/{username}/{dataset_id}/features/{feature_id}", DatasetFeaturesUpdate)   // features update    ok
+		ds.Delete("/{username}/{dataset_id}/features/{feature_id}", DatasetFeaturesDelete) // Delete a feature   ok
 	}
 
 	// fonts
@@ -74,9 +73,4 @@ func SetRoutes(app *iris.Application) {
 		ts.Get("/{tilesetjson:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+.json)}", TilesetMetadata)    // Retrieve TileJSON metadata
 
 	}
-
-	// Retrieve vector tiles
-	// app.Get("/v4/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}/{zoom:int}/{x:int}/{yformat:string regexp(^[0-9]+.{[a-z]+})}")
-	// Retrieve raster tiles
-	// app.Get("/v4/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}/{zoom:int}/{x:int}/{yformat:string regexp(^[0-9]+.{[a-z]+})}")
 }

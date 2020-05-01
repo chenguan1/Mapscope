@@ -11,14 +11,14 @@ import (
 
 func ConvertShp2Geojson(shpfile string, geojsonfile string) error {
 	data, err := shp2geojson.Convert(shpfile)
-	if err != nil{
-		return fmt.Errorf("convert shp to geojson failed: %v",err)
+	if err != nil {
+		return fmt.Errorf("convert shp to geojson failed: %v", err)
 	}
 
 	EnsurePathExist(filepath.Dir(geojsonfile))
-	err = ioutil.WriteFile(geojsonfile,data,os.ModePerm)
-	if err != nil{
-		return fmt.Errorf("create geojson file failed, err: %v",err)
+	err = ioutil.WriteFile(geojsonfile, data, os.ModePerm)
+	if err != nil {
+		return fmt.Errorf("create geojson file failed, err: %v", err)
 	}
 
 	return nil
@@ -26,8 +26,8 @@ func ConvertShp2Geojson(shpfile string, geojsonfile string) error {
 
 func ConvertCsv2Geojson(csvfile string, geojsonfile string) error {
 	err := csv2geojson.Convert(csvfile, geojsonfile)
-	if err != nil{
-		return fmt.Errorf("convert csv to geojson failed: %v",err)
+	if err != nil {
+		return fmt.Errorf("convert csv to geojson failed: %v", err)
 	}
-	return  nil
+	return nil
 }
