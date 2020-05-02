@@ -8,7 +8,7 @@ import (
 
 type Dataset struct {
 	Id           string    `json:"id" gorm:"primary_key"`
-	Name         string    `json:"name"`
+	Name         string    `json:"name" gorm:"not null;unique"`
 	Owner        string    `json:"owner"`
 	Size         int64     `json:"size"`
 	FeatureCount int       `json:"feature_count"`
@@ -24,15 +24,29 @@ type Dataset struct {
 	Public  int     `json:"public"` // 是否可以公开访问
 	GeoType GeoType `json:"geotype"`
 	Fields  Fields  `json:"fields" gorm:"type:json"` // , , ,
-	Version int     `json:"version"`                  // 版本号 0 开始，初始版本号为0
-	Edited  int     `json:"edited"`                   // 编辑的次数，编辑状态下不缓存，不走缓存
+	Version int     `json:"version"`                 // 版本号 0 开始，初始版本号为0
+	Edited  int     `json:"edited"`                  // 编辑的次数，编辑状态下不缓存，不走缓存
 }
 
-// 保存dataset到数据库中
+// 保存dataset到数据库中,要保证Name 唯一
 func (dt *Dataset) Save() error {
 	db := database.Get()
-	return db.Create(dt).Error
+
+	// 检查是否重名，如果重名则需要将名称加上id
+	var dtSameName []Dataset
+	err := db.Where(Dataset{Name:dt.Name}).Find(&dtSameName).Error
+	if err != nil{
+		return fmt.Errorf("database cnn failed. %v", err)
+	}
+
+	// 如果重名，name加上sid
+	if len(dtSameName) > 0{
+		dt.Name = dt.Name + "_" + dt.Id
+	}
+
+	return db.Save(dt).Error
 }
+
 
 // 得到tilejson
 func (dt *Dataset) ToTileJson() *Tilejson {

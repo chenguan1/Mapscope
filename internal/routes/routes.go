@@ -4,45 +4,44 @@ import (
 	"github.com/kataras/iris/v12"
 )
 
-// 30 MB
-const maxFontSize = 30 << 20
+// 50 MB
+const maxFontSize = 50 << 20
 
 // 设置路由
 func SetRoutes(app *iris.Application) {
 	// 静态文件
 	app.HandleDir("/", "./public")
 
-	// datasets
+	// datasets ok
 	ds := app.Party("/datasets/v1")
 	{
-		ds.Post("/{username}", DatasetCreate)                // create a new empty dataset
+		ds.Get("/{username}", DatasetList)                   // list datasets ok
 
-		ds.Get("/{username}/tile.json", DatasetList)                   // list datasets
-
-		ds.Get("/{username}/{dataset_id}", DatasetRetrive)   // Retrieve a dataset
-		ds.Patch("/{username}/{dataset_id}", DatasetUpdate)  // Retrieve a dataset
-		ds.Delete("/{username}/{dataset_id}", DatasetDelete) // Delete a dataset
+		ds.Get("/{username}/{dataset_id}", DatasetRetrive)   // Retrieve a dataset ok
+		ds.Patch("/{username}/{dataset_id}", DatasetUpdate)  // Update a dataset name,public,description 可以修改 ok
+		ds.Delete("/{username}/{dataset_id}", DatasetDelete) // Delete a dataset ok
 
 		// dataset
 		ds.Post("/{username}", DatasetUpload)                                                                      // 上传数据集，支持zip包，geojson，json，shp(zip) ok
 		ds.Get(`/{username}/{dataset_id}/{zoom:int}/{x:int}/{yformat:string regexp(^[0-9]+.[a-z]+)}`, DatasetTile) // format=mvt ok
-		ds.Get("/{username}/{dataset_id}/tile.json", DatasetTilejson)
-		ds.Head("/{username}/{dataset_id}/tile.json", DatasetTilejson)
+		ds.Get("/{username}/{dataset_id}/tile.json", DatasetTilejson) // ok
+		ds.Head("/{username}/{dataset_id}/tile.json", DatasetTilejson) // ok
 
 		// feature
 		ds.Get("/{username}/{dataset_id}/features", DatasetFeatures)                       // List features      ok
 		ds.Post("/{username}/{dataset_id}/features", DatasetFeaturesInsert)                // features insert    ok
 		ds.Get("/{username}/{dataset_id}/features/{feature_id}", DatasetFeaturesRetrive)   // Retrieve a feature ok
-		ds.Post("/{username}/{dataset_id}/features/{feature_id}", DatasetFeaturesUpdate)   // features update    ok
+		ds.Patch("/{username}/{dataset_id}/features/{feature_id}", DatasetFeaturesUpdate)  // features update    ok
 		ds.Delete("/{username}/{dataset_id}/features/{feature_id}", DatasetFeaturesDelete) // Delete a feature   ok
 	}
 
-	// fonts
+	// fonts ok
 	fs := app.Party("/fonts/v1")
 	{
-		fs.Get("/{username}/{font}/{rangepbf:string regexp(^[0-9]+-[0-9]+.pbf)}", FontGlypRange) // Retrieve font glyph ranges
-		fs.Get("/{username}", FontList)                                                          // List fonts
-		fs.Post("/{username}", iris.LimitRequestBodySize(maxFontSize), FontAdd)                  // Add a font
+		fs.Get("/{username}/{font}/{rangepbf:string regexp(^[0-9]+-[0-9]+.pbf)}", FontGlypRange) // Retrieve font glyph ranges ok
+		fs.Get("/{username}", FontList)                                                          // List fonts ok
+		fs.Post("/{username}", iris.LimitRequestBodySize(maxFontSize), FontAdd)                  // Add a font ok
+		fs.Delete("/{username}/{fontname}", FontDelete)                                          // delete ok
 	}
 
 	// tilesets

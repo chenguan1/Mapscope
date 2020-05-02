@@ -20,6 +20,7 @@ func Run() {
 
 	database.Get().AutoMigrate(&models.Datasource{})
 	database.Get().AutoMigrate(&models.Dataset{})
+	database.Get().AutoMigrate(&models.Font{})
 	database.Get().AutoMigrate(&models.DataBackup{})
 
 	app := iris.Default()

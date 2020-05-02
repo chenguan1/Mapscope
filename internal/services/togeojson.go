@@ -15,6 +15,7 @@ func ToGeojson(vfile string, out_geojson string) error {
 	if _, err = os.Stat(vfile); os.IsNotExist(err) {
 		return err
 	}
+
 	if out_geojson == "" {
 		out_geojson = strings.TrimSuffix(vfile, filepath.Ext(vfile)) + ".geojson"
 	}

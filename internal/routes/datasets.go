@@ -7,10 +7,8 @@ import (
 	"Mapscope/internal/utils"
 	"fmt"
 	"github.com/kataras/iris/v12/context"
-	"net/http"
 	"strconv"
 	"strings"
-	"time"
 )
 
 /*
@@ -23,86 +21,85 @@ Invalid start key	422	Check the start key used in the query.
 No dataset	422	Check the dataset ID used in the query (or, if you are retrieving a feature, check the feature ID).
 */
 
-func DatasetList(ctx context.Context) {
-	user := ctx.Params().Get("username")
-	dts := make([]models.Dataset, 0)
-	dts = append(dts, models.Dataset{
-		Owner: user,
-	})
-	ctx.JSON(dts)
-}
-
-func DatasetCreate(ctx context.Context) {
-	user := ctx.Params().Get("username")
-	type post struct {
-		Name        string `json"name"`
-		Description string `json:description`
-	}
-
-	bd := post{}
-	if err := ctx.ReadJSON(&bd); err != nil {
-		ctx.JSON(err)
-		return
-	}
-
-	dt := models.Dataset{
-		Id:          "123456",
-		Owner:       user,
-		Name:        bd.Name,
-		Created:     time.Now(),
-		Modified:    time.Now(),
-		Description: bd.Description,
-	}
-	// create dataset
-
-	ctx.JSON(dt)
-}
 
 func DatasetRetrive(ctx context.Context) {
-	user := ctx.Params().Get("username")
 	dtid := ctx.Params().Get("dataset_id")
 
-	dt := models.Dataset{
-		Id:    dtid,
-		Owner: user,
-	}
+	res := utils.NewRes(ctx)
 
-	ctx.JSON(dt)
+	dt,err := services.DatasetGet(dtid)
+	if err != nil {
+		res.FailMsg("Get dataset list failed.")
+		return
+	}
+	res.DoneData(dt)
 }
 
-func DatasetUpdate(ctx context.Context) {
+func DatasetList(ctx context.Context) {
 	user := ctx.Params().Get("username")
-	dtid := ctx.Params().Get("dataset_id")
-	type post struct {
-		Name        string `json"name"`
-		Description string `json:description`
-	}
 
-	bd := post{}
-	if err := ctx.ReadJSON(&bd); err != nil {
-		ctx.JSON(err)
+	res := utils.NewRes(ctx)
+
+	dts,err := services.DatasetList(user)
+	if err != nil {
+		res.FailMsg("Get dataset list failed.")
+		return
+	}
+	res.DoneData(dts)
+}
+
+/*
+更新dataset信息
+只有以下属性可以修改：
+name，public，description
+*/
+func DatasetUpdate(ctx context.Context) {
+	//user := ctx.Params().Get("username")
+	dtid := ctx.Params().Get("dataset_id")
+
+	res := utils.NewRes(ctx)
+
+	var dtForm models.Dataset
+	if err := ctx.ReadJSON(&dtForm); err != nil{
+		res.FailMsg("read dataset info from request failed.")
 		return
 	}
 
-	dt := models.Dataset{
-		Id:          dtid,
-		Owner:       user,
-		Name:        bd.Name,
-		Created:     time.Now(),
-		Modified:    time.Now(),
-		Description: bd.Description,
+	dt,err := services.DatasetGet(dtid)
+	if err != nil {
+		res.FailMsg(fmt.Sprintf("server can not find dataset %v.", dtid))
+		return
 	}
 
-	ctx.JSON(dt)
+	dt.Name = dtForm.Name
+	dt.Public = dtForm.Public
+	dt.Description = dtForm.Description
+
+	if err := dt.Save(); err != nil{
+		res.FailErr(fmt.Errorf("store dataset info failed. %v", dtid))
+		return
+	}
+
+	res.DoneData(dt)
 }
 
+// 删除datast
 func DatasetDelete(ctx context.Context) {
 	user := ctx.Params().Get("username")
 	dtid := ctx.Params().Get("dataset_id")
 
 	ctx.Application().Logger().Printf("delete %v.%v", user, dtid)
 
-	ctx.StatusCode(http.StatusNoContent)
+	res := utils.NewRes(ctx)
+
+	// 删除
+	if err := services.DatasetDelete(dtid); err != nil{
+		ctx.Application().Logger().Errorf("DatasetDelete err: %v", err)
+		res.FailMsg("delete dataset failed.")
+		return
+	}
+
+	res.DoneMsg("dataset has been deleted.")
 }
 
 func DatasetFeatures(ctx context.Context) {
@@ -240,7 +237,7 @@ func DatasetUpload(ctx context.Context) {
 	res := utils.NewRes(ctx)
 
 	// 保存上传的文件
-	files := utils.SaveFormFiles(ctx, upfolder)
+	files := utils.SaveFormFiles(ctx, upfolder, false)
 	if len(files) == 0 {
 		ctx.Application().Logger().Errorf("DatasetUpload SaveFormFiles, err: %v", err)
 		res.FailMsg("upload files failed.")

@@ -8,6 +8,8 @@ import (
 	"strings"
 )
 
+
+
 // 根据id获取dataset
 func DatasetGet(dataset_id string) (*models.Dataset, error) {
 	var dt models.Dataset
@@ -16,6 +18,52 @@ func DatasetGet(dataset_id string) (*models.Dataset, error) {
 		return nil, fmt.Errorf("DatasetGet failed, err: %v", err)
 	}
 	return &dt, nil
+}
+
+// 删除指定的dataset
+func DatasetDelete(dataset_id string) error {
+	var err error
+	var dt models.Dataset
+
+	db := database.Get()
+	err = db.Where(models.Dataset{Id: dataset_id}).Find(&dt).Error
+	if err != nil {
+		return fmt.Errorf("DatasetDelete err: %v", err)
+	}
+
+	// 事务删除
+	tx := db.Begin()
+
+	// 1.删除dataset_did表
+	if err = tx.DropTableIfExists(dt.TableName).Error; err != nil{
+		tx.Rollback()
+		return fmt.Errorf("Database droptable &v err: %v", dt.TableName, err)
+	}
+	// 2.删除dataset记录
+	if err=tx.Delete(models.Dataset{Id:dt.Id}).Error;err!=nil{
+		tx.Rollback()
+		return fmt.Errorf("Database delete dataset record err: %v", err)
+	}
+
+	// 提交
+	if err=tx.Commit().Error;err != nil{
+		tx.Rollback()
+		return fmt.Errorf("Database commit err: %v", err)
+	}
+
+	return nil
+}
+
+
+
+// 获取某用户的所有dataset
+func DatasetList(user string) ([]models.Dataset, error) {
+	var dts []models.Dataset
+	err := database.Get().Where(models.Dataset{Owner: user}).Find(&dts).Error
+	if err != nil {
+		return nil, fmt.Errorf("DatasetList err: %v", err)
+	}
+	return dts, nil
 }
 
 
