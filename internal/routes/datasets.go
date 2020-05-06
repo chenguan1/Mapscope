@@ -9,6 +9,7 @@ import (
 	"github.com/kataras/iris/v12/context"
 	"strconv"
 	"strings"
+	"time"
 )
 
 /*
@@ -74,6 +75,7 @@ func DatasetUpdate(ctx context.Context) {
 	dt.Name = dtForm.Name
 	dt.Public = dtForm.Public
 	dt.Description = dtForm.Description
+	dt.Modified = time.Now()
 
 	if err := dt.Save(); err != nil{
 		res.FailErr(fmt.Errorf("store dataset info failed. %v", dtid))
@@ -256,10 +258,14 @@ func DatasetUpload(ctx context.Context) {
 }
 
 // 获取数据切片
+// 要支持dtid1,dtid3,dtid3这种形式传入多个id
 func DatasetTile(ctx context.Context) {
 	//user := ctx.Params().Get("username")
-	dtid := ctx.Params().Get("dataset_id")
+	dtidstr := ctx.Params().Get("dataset_ids")
 
+	dtids := strings.Split(dtidstr,",")
+
+	dtid := dtids[0]
 	zoom, _ := strconv.Atoi(ctx.Params().Get("zoom"))
 	x, _ := strconv.Atoi(ctx.Params().Get("x"))
 	yformat := strings.Split(ctx.Params().Get("yformat"), ".")
@@ -304,3 +310,45 @@ func DatasetTilejson(ctx context.Context)  {
 
 	res.Json(tj)
 }
+
+// 备份dataset
+/*
+策略：
+1. 开始编辑，进入编辑状态
+2. 提交编辑，version++
+3. 备份，对当前version进行备份，如果同一个version已经存在，则备份失败，除非使用参数force强制备份
+   编辑状态下不可以备份。
+*/
+func DatasetBackup(ctx context.Context)  {
+	//user := ctx.Params().Get("username")
+	dtid := ctx.Params().Get("dataset_id")
+
+	res := utils.NewRes(ctx)
+
+	bk, err := services.DatasetBackup(dtid,true)
+	if err != nil{
+		ctx.Application().Logger().Error("DatasetBackup err: %v", err)
+		res.FailMsg("databack up failed, err: "+err.Error())
+		return
+	}
+
+	res.DoneData(bk)
+}
+
+// 提交dataset修改，版本加1
+func DatasetCommit(ctx context.Context){
+	//user := ctx.Params().Get("username")
+	//dtid := ctx.Params().Get("dataset_id")
+	//services.DatasetCommit(dtid)
+}
+
+// 获取某一dataset的备份列表
+func DatasetBackupList(ctx context.Context)  {
+	
+}
+
+// 恢复到某一备份版本，根据version号
+func DatasetBackupRevert(ctx context.Context)  {
+
+}
+

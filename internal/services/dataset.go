@@ -8,8 +8,6 @@ import (
 	"strings"
 )
 
-
-
 // 根据id获取dataset
 func DatasetGet(dataset_id string) (*models.Dataset, error) {
 	var dt models.Dataset
@@ -35,26 +33,31 @@ func DatasetDelete(dataset_id string) error {
 	tx := db.Begin()
 
 	// 1.删除dataset_did表
-	if err = tx.DropTableIfExists(dt.TableName).Error; err != nil{
+	if err = tx.DropTableIfExists(dt.TableName).Error; err != nil {
 		tx.Rollback()
 		return fmt.Errorf("Database droptable &v err: %v", dt.TableName, err)
 	}
 	// 2.删除dataset记录
-	if err=tx.Delete(models.Dataset{Id:dt.Id}).Error;err!=nil{
+	if err = tx.Delete(models.Dataset{Id: dt.Id}).Error; err != nil {
 		tx.Rollback()
 		return fmt.Errorf("Database delete dataset record err: %v", err)
 	}
 
+	// 3.删除备份
+	if err = DataBackupDeleteAll(dataset_id); err != nil {
+		tx.Rollback()
+		return fmt.Errorf("Database delete backups err: %v", err)
+	}
+
+
 	// 提交
-	if err=tx.Commit().Error;err != nil{
+	if err = tx.Commit().Error; err != nil {
 		tx.Rollback()
 		return fmt.Errorf("Database commit err: %v", err)
 	}
 
 	return nil
 }
-
-
 
 // 获取某用户的所有dataset
 func DatasetList(user string) ([]models.Dataset, error) {
@@ -65,7 +68,6 @@ func DatasetList(user string) ([]models.Dataset, error) {
 	}
 	return dts, nil
 }
-
 
 // 从上传的文件中导入Dataset
 func DatasetsFromUpload(files []models.FileUped, user string) ([]models.Dataset, error) {
@@ -101,7 +103,8 @@ func DatasetsFromUpload(files []models.FileUped, user string) ([]models.Dataset,
 
 // dataset to mvt
 func DatasetToMvtBuf(dataset_id string, zoom, x, y int) ([]byte, error) {
-	dt, err := DatasetGet(dataset_id); if err != nil {
+	dt, err := DatasetGet(dataset_id)
+	if err != nil {
 		return nil, fmt.Errorf("DatasetToMvtBuf err: %v", err)
 	}
 
@@ -145,3 +148,4 @@ func DatasetTilejson(dataset_id string) (*models.Tilejson, error) {
 
 	return dt.ToTileJson(), nil
 }
+

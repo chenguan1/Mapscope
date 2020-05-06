@@ -9,23 +9,32 @@ const maxFontSize = 50 << 20
 
 // 设置路由
 func SetRoutes(app *iris.Application) {
+	app.Use(Cors)
 	// 静态文件
 	app.HandleDir("/", "./public")
 
 	// datasets ok
 	ds := app.Party("/datasets/v1")
 	{
+		// dataset
 		ds.Get("/{username}", DatasetList)                   // list datasets ok
-
 		ds.Get("/{username}/{dataset_id}", DatasetRetrive)   // Retrieve a dataset ok
 		ds.Patch("/{username}/{dataset_id}", DatasetUpdate)  // Update a dataset name,public,description 可以修改 ok
 		ds.Delete("/{username}/{dataset_id}", DatasetDelete) // Delete a dataset ok
 
-		// dataset
-		ds.Post("/{username}", DatasetUpload)                                                                      // 上传数据集，支持zip包，geojson，json，shp(zip) ok
-		ds.Get(`/{username}/{dataset_id}/{zoom:int}/{x:int}/{yformat:string regexp(^[0-9]+.[a-z]+)}`, DatasetTile) // format=mvt ok
-		ds.Get("/{username}/{dataset_id}/tile.json", DatasetTilejson) // ok
-		ds.Head("/{username}/{dataset_id}/tile.json", DatasetTilejson) // ok
+		ds.Post("/{username}", DatasetUpload) // 上传数据集，支持zip包，geojson，json，shp(zip) ok
+		ds.Get(`/{username}/{dataset_ids}/{zoom:int}/{x:int}/{yformat:string regexp(^[0-9]+.[a-z]+)}`, DatasetTile) // 获取矢量切片 mvt格式 ..........
+		ds.Get("/{username}/{dataset_id}/tile.json", DatasetTilejson) // tilejson ok
+		ds.Head("/{username}/{dataset_id}/tile.json", DatasetTilejson) // tilejson ok
+
+		// 备份
+		ds.Put("/{username}/{dataset_id}/backup", DatasetBackup) // ok
+		// 提交修改
+		ds.Put("/{username}/{dataset_id}/commit", DatasetCommit)
+		// 获取备份列表
+		ds.Get("/{username}/{dataset_id}/backup", DatasetBackupList)
+		// 根据版本号恢复到某一个备份
+		ds.Put("/{username}/{dataset_id}/revert", DatasetBackupRevert)
 
 		// feature
 		ds.Get("/{username}/{dataset_id}/features", DatasetFeatures)                       // List features      ok

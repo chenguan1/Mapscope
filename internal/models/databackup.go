@@ -11,7 +11,7 @@ import "time"
 	提交编辑，如果edited != 0 {edited = 0; version++}
 */
 type DataBackup struct {
-	Id          int       `json:"id" gorm:"primary_key;AUTO_INCREMENT"`
+	Id          int       `json:"-" gorm:"primary_key;AUTO_INCREMENT"`
 	Dataset     string    `json:"dataset"` // dataset id
 	Source      string    `json:"source"`  // datasource id // 可为空
 	Version     int       `json:"version"`

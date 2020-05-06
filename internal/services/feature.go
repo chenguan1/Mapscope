@@ -7,6 +7,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/paulmach/orb/geojson"
+	"time"
+
 	//gogeo "github.com/paulmach/go.geojson"
 )
 
@@ -81,9 +83,12 @@ func FeatureGetByGeojson(dataset_id string, feature_id string) (interface{}, err
 // 删除feature
 func FeatureDelete(dataset_id string, feature_id string) error {
 	var dt models.Dataset
-	db := database.Get()
-	err := db.Where(models.Dataset{Id: dataset_id}).Find(&dt).Error
+
+	tx := database.Get().Begin()
+
+	err := tx.Where(models.Dataset{Id: dataset_id}).Find(&dt).Error
 	if err != nil {
+		tx.Rollback()
 		return fmt.Errorf("FeatureDelete failed, err: %v", err)
 	}
 
@@ -91,15 +96,23 @@ func FeatureDelete(dataset_id string, feature_id string) error {
 
 	sql := fmt.Sprintf(sqlfmt, dt.TableName, feature_id)
 
-	dbrt := db.Exec(sql)
+	dbrt := tx.Exec(sql)
 	err = dbrt.Error
 	if err != nil {
+		tx.Rollback()
 		return fmt.Errorf("FeatureDelete failed, err: %v", err)
 	}
 
 	if dbrt.RowsAffected == 0 {
+		tx.Rollback()
 		return fmt.Errorf("FeatureDelete failed, err: %v", "rows affected == 0")
 	}
+
+	dt.Edited++
+	dt.Modified = time.Now()
+	tx.Save(&dt)
+
+	tx.Commit()
 
 	return nil
 }
@@ -107,8 +120,8 @@ func FeatureDelete(dataset_id string, feature_id string) error {
 // 更新feature
 func FeatureUpdate(dataset_id string, feature_id string, gjson []byte) error {
 	var dt models.Dataset
-	db := database.Get()
-	err := db.Where(models.Dataset{Id: dataset_id}).Find(&dt).Error
+	tx := database.Get().Begin()
+	err := tx.Where(models.Dataset{Id: dataset_id}).Find(&dt).Error
 	if err != nil {
 		return fmt.Errorf("FeatureUpdate failed, err: %v", err)
 	}
@@ -145,15 +158,23 @@ where gid = %v
 `
 	sql := fmt.Sprintf(sqlfmt, dt.TableName, setvalue, feature_id)
 
-	dbrt := db.Exec(sql)
+	dbrt := tx.Exec(sql)
 	err = dbrt.Error
 	if err != nil {
+		tx.Rollback()
 		return fmt.Errorf("FeatureUpdate failed, err: %v", err)
 	}
 
 	if dbrt.RowsAffected == 0 {
+		tx.Rollback()
 		return fmt.Errorf("FeatureUpdate failed, err: %v", "rows affected == 0")
 	}
+
+	dt.Edited++
+	dt.Modified = time.Now()
+	tx.Save(&dt)
+
+	tx.Commit()
 
 	return nil
 }
@@ -161,8 +182,8 @@ where gid = %v
 // 插入feature
 func FeatureInsert(dataset_id string, gjson []byte) error {
 	var dt models.Dataset
-	db := database.Get()
-	err := db.Where(models.Dataset{Id: dataset_id}).Find(&dt).Error
+	tx := database.Get().Begin()
+	err := tx.Where(models.Dataset{Id: dataset_id}).Find(&dt).Error
 	if err != nil {
 		return fmt.Errorf("FeatureInsert failed, err: %v", err)
 	}
@@ -196,15 +217,22 @@ func FeatureInsert(dataset_id string, gjson []byte) error {
 
 	fmt.Println(sql)
 
-	dbrt := db.Exec(sql)
+	dbrt := tx.Exec(sql)
 	err = dbrt.Error
 	if err != nil {
+		tx.Rollback()
 		return fmt.Errorf("FeatureUpdate failed, err: %v", err)
 	}
 
 	if dbrt.RowsAffected == 0 {
+		tx.Rollback()
 		return fmt.Errorf("FeatureUpdate failed, err: %v", "rows affected == 0")
 	}
+
+	dt.Edited++
+	dt.Modified = time.Now()
+	tx.Save(&dt)
+	tx.Commit()
 
 	return nil
 }

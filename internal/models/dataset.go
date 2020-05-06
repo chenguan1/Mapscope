@@ -66,3 +66,9 @@ func (dt *Dataset) ToTileJson() *Tilejson {
 	})
 	return tj
 }
+
+
+// 判断是否处于编辑状态
+func (dt *Dataset)IsEditing() bool  {
+	return dt.Edited != 0
+}
