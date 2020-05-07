@@ -64,6 +64,11 @@ func (dt *Dataset) ToTileJson() *Tilejson {
 	tj.VectorLayers = append(tj.VectorLayers, vectorLayer{
 		Id: dt.Name,
 	})
+
+	long := (tj.Bounds[0] + tj.Bounds[2]) / 2.0
+	lat  := (tj.Bounds[1] + tj.Bounds[3]) / 2.0
+	tj.Center = [3]float64{long,lat,float64(tj.Minzoom)}
+
 	return tj
 }
 

@@ -84,7 +84,7 @@ func DataBackupDeleteAll(dataset_id string) error {
 
 	// all backups
 	var bks []models.DataBackup
-	err = db.Where(models.DataBackup{Version: dt.Version}).Find(&bks).Error
+	err = db.Where(models.DataBackup{Dataset:dt.Id, Version: dt.Version}).Find(&bks).Error
 	if err != nil {
 		return fmt.Errorf("database cnn failed. %v", err)
 	}
@@ -109,4 +109,23 @@ func DataBackupDeleteAll(dataset_id string) error {
 	tx.Commit()
 
 	return nil
+}
+
+// 获取某dataset的所有备份
+func DatasetBackupList(dataset_id string) ([]models.DataBackup, error) {
+	dt, err := DatasetGet(dataset_id)
+	if err != nil {
+		return nil, fmt.Errorf("DatasetBackupList err: %v", err)
+	}
+
+	db := database.Get()
+
+	// all backups
+	var bks []models.DataBackup
+	err = db.Where(models.DataBackup{Dataset:dt.Id}).Find(&bks).Error
+	if err != nil {
+		return nil, fmt.Errorf("DatasetBackupList err: %v", err)
+	}
+
+	return bks, nil
 }

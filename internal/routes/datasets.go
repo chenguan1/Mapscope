@@ -22,13 +22,12 @@ Invalid start key	422	Check the start key used in the query.
 No dataset	422	Check the dataset ID used in the query (or, if you are retrieving a feature, check the feature ID).
 */
 
-
 func DatasetRetrive(ctx context.Context) {
 	dtid := ctx.Params().Get("dataset_id")
 
 	res := utils.NewRes(ctx)
 
-	dt,err := services.DatasetGet(dtid)
+	dt, err := services.DatasetGet(dtid)
 	if err != nil {
 		res.FailMsg("Get dataset list failed.")
 		return
@@ -41,7 +40,7 @@ func DatasetList(ctx context.Context) {
 
 	res := utils.NewRes(ctx)
 
-	dts,err := services.DatasetList(user)
+	dts, err := services.DatasetList(user)
 	if err != nil {
 		res.FailMsg("Get dataset list failed.")
 		return
@@ -61,12 +60,12 @@ func DatasetUpdate(ctx context.Context) {
 	res := utils.NewRes(ctx)
 
 	var dtForm models.Dataset
-	if err := ctx.ReadJSON(&dtForm); err != nil{
+	if err := ctx.ReadJSON(&dtForm); err != nil {
 		res.FailMsg("read dataset info from request failed.")
 		return
 	}
 
-	dt,err := services.DatasetGet(dtid)
+	dt, err := services.DatasetGet(dtid)
 	if err != nil {
 		res.FailMsg(fmt.Sprintf("server can not find dataset %v.", dtid))
 		return
@@ -77,7 +76,7 @@ func DatasetUpdate(ctx context.Context) {
 	dt.Description = dtForm.Description
 	dt.Modified = time.Now()
 
-	if err := dt.Save(); err != nil{
+	if err := dt.Save(); err != nil {
 		res.FailErr(fmt.Errorf("store dataset info failed. %v", dtid))
 		return
 	}
@@ -95,7 +94,7 @@ func DatasetDelete(ctx context.Context) {
 	res := utils.NewRes(ctx)
 
 	// 删除
-	if err := services.DatasetDelete(dtid); err != nil{
+	if err := services.DatasetDelete(dtid); err != nil {
 		ctx.Application().Logger().Errorf("DatasetDelete err: %v", err)
 		res.FailMsg("delete dataset failed.")
 		return
@@ -263,9 +262,8 @@ func DatasetTile(ctx context.Context) {
 	//user := ctx.Params().Get("username")
 	dtidstr := ctx.Params().Get("dataset_ids")
 
-	dtids := strings.Split(dtidstr,",")
+	dtids := strings.Split(dtidstr, ",")
 
-	dtid := dtids[0]
 	zoom, _ := strconv.Atoi(ctx.Params().Get("zoom"))
 	x, _ := strconv.Atoi(ctx.Params().Get("x"))
 	yformat := strings.Split(ctx.Params().Get("yformat"), ".")
@@ -276,34 +274,43 @@ func DatasetTile(ctx context.Context) {
 
 	// 用户认证
 
-	// 获取切片
-	if format == ".mvt" || format == ".pbf" {
+	if format != ".mvt" && format != ".pbf" {
+		ctx.Application().Logger().Errorf("DatasetTile, format %s not surpported.", format)
+		res.FailMsg(fmt.Sprintf("format %s not surported.", format))
+		return
+	}
+
+	data := make([]byte, 0)
+
+	for _, dtid := range dtids {
+		// 获取切片
 		mvtbuf, err := services.DatasetToMvtBuf(dtid, zoom, x, y)
 		if err != nil {
 			ctx.Application().Logger().Errorf("DatasetTile, get mvt failed, err: %v", err)
 			res.FailMsg("get mvt tile failed.")
 			return
 		}
-		ctx.ContentType("application/vnd.mapbox-vector-tile")
-		ctx.Binary(mvtbuf)
-	} else {
-		ctx.Application().Logger().Errorf("DatasetTile, format %s not surpported.", format)
-		res.FailMsg(fmt.Sprintf("format %s not surported.", format))
-		return
+		data = append(data, mvtbuf...)
 	}
+
+	ctx.ContentType("application/vnd.mapbox-vector-tile")
+	ctx.Binary(data)
+
 }
 
 // 获取Tilejson
-func DatasetTilejson(ctx context.Context)  {
+func DatasetTilejson(ctx context.Context) {
 	//user := ctx.Params().Get("username")
-	dtid := ctx.Params().Get("dataset_id")
+	dtids := strings.Split(ctx.Params().Get("dataset_ids"),",")
 
-	var tj *models.Tilejson
+
 	var err error
 
 	res := utils.NewRes(ctx)
 
-	if tj,err = services.DatasetTilejson(dtid); err != nil{
+	var tj *models.Tilejson
+
+	if tj, err = services.DatasetsTilejson(dtids); err != nil {
 		res.FailMsg("get tile json failed.")
 		return
 	}
@@ -319,16 +326,16 @@ func DatasetTilejson(ctx context.Context)  {
 3. 备份，对当前version进行备份，如果同一个version已经存在，则备份失败，除非使用参数force强制备份
    编辑状态下不可以备份。
 */
-func DatasetBackup(ctx context.Context)  {
+func DatasetBackup(ctx context.Context) {
 	//user := ctx.Params().Get("username")
 	dtid := ctx.Params().Get("dataset_id")
 
 	res := utils.NewRes(ctx)
 
-	bk, err := services.DatasetBackup(dtid,true)
-	if err != nil{
+	bk, err := services.DatasetBackup(dtid, true)
+	if err != nil {
 		ctx.Application().Logger().Error("DatasetBackup err: %v", err)
-		res.FailMsg("databack up failed, err: "+err.Error())
+		res.FailMsg("databack up failed, err: " + err.Error())
 		return
 	}
 
@@ -336,19 +343,50 @@ func DatasetBackup(ctx context.Context)  {
 }
 
 // 提交dataset修改，版本加1
-func DatasetCommit(ctx context.Context){
+func DatasetCommit(ctx context.Context) {
 	//user := ctx.Params().Get("username")
-	//dtid := ctx.Params().Get("dataset_id")
-	//services.DatasetCommit(dtid)
+	dtid := ctx.Params().Get("dataset_id")
+	services.DatasetCommit(dtid)
 }
 
 // 获取某一dataset的备份列表
-func DatasetBackupList(ctx context.Context)  {
-	
+func DatasetBackupList(ctx context.Context) {
+	//user := ctx.Params().Get("username")
+	dtid := ctx.Params().Get("dataset_id")
+
+	res := utils.NewRes(ctx)
+
+	bks, err := services.DatasetBackupList(dtid)
+	if err != nil{
+		ctx.Application().Logger().Error("DatasetBackup err: %v", err)
+		res.FailMsg("get databack up err: " + err.Error())
+		return
+	}
+
+	res.DoneData(bks)
 }
 
 // 恢复到某一备份版本，根据version号
-func DatasetBackupRevert(ctx context.Context)  {
+func DatasetBackupRevert(ctx context.Context) {
+	//user := ctx.Params().Get("username")
+	dtid := ctx.Params().Get("dataset_id")
 
+	res := utils.NewRes(ctx)
+	version := ctx.URLParam("version")
+	if version == "" {
+		ctx.Application().Logger().Error("DatasetBackupRevert err: version not spacifyed.")
+		res.FailMsg("databack up failed, err: version not spacifyed")
+		return
+	}
+
+	versionNum,_ := strconv.Atoi(version)
+
+	dt,err := services.DatasetRevertTo(dtid, versionNum)
+	if err != nil{
+		ctx.Application().Logger().Error("DatasetBackupRevert err: %v", err)
+		res.FailMsg("revert failed.")
+		return
+	}
+
+	res.DoneData(dt)
 }
-

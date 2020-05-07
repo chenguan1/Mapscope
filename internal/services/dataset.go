@@ -5,6 +5,7 @@ import (
 	"Mapscope/internal/models"
 	"Mapscope/internal/utils"
 	"fmt"
+	"math"
 	"strings"
 )
 
@@ -149,3 +150,53 @@ func DatasetTilejson(dataset_id string) (*models.Tilejson, error) {
 	return dt.ToTileJson(), nil
 }
 
+// 多个 dataset 的tilejson
+func DatasetsTilejson(datasets_id []string) (*models.Tilejson, error)  {
+
+	var owner string
+	var tj *models.Tilejson
+	for _, dtid := range datasets_id{
+		dt,err := DatasetGet(dtid)
+		if err != nil{
+			return nil, fmt.Errorf("datasets tile json err: dataset &v can not get.", dtid)
+		}
+		owner = dt.Owner
+		if tj == nil{
+			tj = dt.ToTileJson()
+		}else{
+			t := dt.ToTileJson()
+			tj.Name = tj.Name + ","+t.Name
+			tj.VectorLayers = append(tj.VectorLayers, t.VectorLayers...)
+			tj.Bounds[0], tj.Bounds[1] = math.Min(tj.Bounds[0], t.Bounds[0]), math.Min(tj.Bounds[1], t.Bounds[1])
+			tj.Bounds[2], tj.Bounds[3] = math.Max(tj.Bounds[2], t.Bounds[2]), math.Max(tj.Bounds[3], t.Bounds[3])
+		}
+	}
+
+	url := fmt.Sprintf("http://localhost:8080/datasets/v1/%s/%s/{z}/{x}/{y}.mvt", owner, strings.Join(datasets_id,","))
+	tj.Tiles = []string{url}
+	tj.UpdateCenter()
+
+	return tj, nil
+}
+
+// 提交编辑，version+1，
+func DatasetCommit(dtid string) (*models.Dataset, error) {
+	dt, err := DatasetGet(dtid)
+	if err != nil {
+		return nil, fmt.Errorf("DatasetCommit err: %v", err)
+	}
+	if dt.Edited == 0{
+		return nil, fmt.Errorf("DatasetCommit err: no edited.")
+	}
+
+	dt.Edited = 0
+	dt.Version++
+	dt.Save()
+	return dt, nil
+}
+
+// 恢复到以前备份的版本，根据版本号恢复
+func DatasetRevertTo(dtid string, version int) (*models.Dataset, error) {
+	//
+	return nil, nil
+}

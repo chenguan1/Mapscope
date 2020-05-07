@@ -23,9 +23,9 @@ func SetRoutes(app *iris.Application) {
 		ds.Delete("/{username}/{dataset_id}", DatasetDelete) // Delete a dataset ok
 
 		ds.Post("/{username}", DatasetUpload) // 上传数据集，支持zip包，geojson，json，shp(zip) ok
-		ds.Get(`/{username}/{dataset_ids}/{zoom:int}/{x:int}/{yformat:string regexp(^[0-9]+.[a-z]+)}`, DatasetTile) // 获取矢量切片 mvt格式 ..........
-		ds.Get("/{username}/{dataset_id}/tile.json", DatasetTilejson) // tilejson ok
-		ds.Head("/{username}/{dataset_id}/tile.json", DatasetTilejson) // tilejson ok
+		ds.Get(`/{username}/{dataset_ids}/{zoom:int}/{x:int}/{yformat:string regexp(^[0-9]+.[a-z]+)}`, DatasetTile) // 获取矢量切片 mvt格式 ok
+		ds.Get("/{username}/{dataset_ids}/tile.json", DatasetTilejson) // tilejson ok
+		ds.Head("/{username}/{dataset_ids}/tile.json", DatasetTilejson) // tilejson ok
 
 		// 备份
 		ds.Put("/{username}/{dataset_id}/backup", DatasetBackup) // ok

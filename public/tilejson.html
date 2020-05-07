@@ -22,24 +22,21 @@
         center: [116.3900, 39.9209]
     });
 
+    var paints = {"circle":{"circle-color":"blue","circle-radius":3},"line":{"line-width":1.5,"line-color":"blue"},"fill":{"fill-color":"blue","fill-opacity":0.5,"fill-outline-color":"blue"}};
+
     map.on('load', function() {
         // Add Mapillary sequence layer.
         // https://www.mapillary.com/developer/tiles-documentation/#sequence-layer
         map.addSource('mapscope', {
             'type': 'vector',
-            /*'tiles': [
-                'http://localhost:8080/datasets/v1/gray/1fpu4k6zg/{z}/{x}/{y}.mvt'
-            ],
-            'minzoom': 6,
-            'maxzoom': 14*/
-            'url':'http://localhost:8080/datasets/v1/gray/1fpu4k6zg/tile.json'
+            'url':'http://localhost:8080/datasets/v1/gray/mk98m0ezr,nnz9maewg/tile.json'
         });
         map.addLayer(
                 {
-                    'id': '1fpu4k6zg',
+                    'id': 'railways',
                     'type': 'line',
                     'source': 'mapscope',
-                    'source-layer': '1fpu4k6zg',
+                    'source-layer': 'gis_osm_railways_free_1',
                     'layout': {
                         'line-cap': 'round',
                         'line-join': 'round'
@@ -49,9 +46,15 @@
                         'line-color': 'rgb(53, 175, 109)',
                         'line-width': 2
                     }
-                },
-                'waterway-label'
+                }
         );
+        map.addLayer({
+            'id': 'waters',
+            'type': 'fill',
+            'source': 'mapscope',
+            'source-layer': 'gis_osm_water_a_free_1',
+            'paint': {"fill-color":"blue","fill-opacity":0.5,"fill-outline-color":"blue"}
+        });
     });
 
     map.addControl(new mapboxgl.NavigationControl());
