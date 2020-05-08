@@ -40,3 +40,11 @@ func PathUploads(user string) string {
 	dir, _ = filepath.Abs(dir)
 	return dir
 }
+
+func PathCaches() string {
+	data := viper.GetString("paths.data")
+	dir := filepath.Join(data, "caches")
+	dir, _ = filepath.Abs(dir)
+	return dir
+}
+

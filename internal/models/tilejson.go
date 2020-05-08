@@ -17,14 +17,16 @@ type Tilejson struct {
 
 type vectorLayer struct {
 	Id string `json:"id"`
+	Minzoom      int           `json:"minzoom"`
+	Maxzoom      int           `json:"maxzoom"`
 }
 
 func NewTileJson() *Tilejson {
 	return &Tilejson{
 		Tilejson: "2.2.0",
 		Version:  "1.0.0",
-		Minzoom:  6,
-		Maxzoom:  30,
+		Minzoom:  4,
+		Maxzoom:  24,
 		Bounds:   [4]float64{-180, -85.05112877980659, 180, 85.0511287798066},
 		Center:   [3]float64{0, 0, 6},
 	}
