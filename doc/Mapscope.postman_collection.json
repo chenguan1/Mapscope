@@ -1,0 +1,622 @@
+{
+	"info": {
+		"_postman_id": "d1940988-3810-4a68-bda4-19dcb912d613",
+		"name": "Mapscope",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "tilesets",
+			"item": [
+				{
+					"name": "tileset_create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"recipe\":\r\n  {\r\n    \"version\": 1,\r\n    \"layers\": {\r\n      \"hello_world\": {\r\n        \"source\": \"mapbox://tileset-source/username/hello-world\",\r\n        \"minzoom\": 0,\r\n        \"maxzoom\": 5\r\n      }\r\n    }\r\n  },\r\n  \"name\": \"Hello World\",\r\n  \"private\" :false\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/tilesets/v1/gray.tset-D",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"tilesets",
+								"v1",
+								"gray.tset-D"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "tileset_publish",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/tilesets/v1/gray.tset-D/publish",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"tilesets",
+								"v1",
+								"gray.tset-D",
+								"publish"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "tileset_status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/tilesets/v1/gray.tset-D/status",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"tilesets",
+								"v1",
+								"gray.tset-D",
+								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "tileset_jobinfo",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/tilesets/v1/gray.tset-D/jobs/myjob",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"tilesets",
+								"v1",
+								"gray.tset-D",
+								"jobs",
+								"myjob"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "tileset_jobs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/tilesets/v1/gray.tset-D/jobs",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"tilesets",
+								"v1",
+								"gray.tset-D",
+								"jobs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "tileset_queue",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/tilesets/v1/queue",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"tilesets",
+								"v1",
+								"queue"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "datasets",
+			"item": [
+				{
+					"name": "dataset_list",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/datasets/list/gray",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"datasets",
+								"list",
+								"gray"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "dataset_upload",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/E:/_GisWork/tippecanoe_exe/data/in.geojson"
+								},
+								{
+									"key": "file",
+									"type": "file",
+									"src": [],
+									"disabled": true
+								},
+								{
+									"key": "file",
+									"type": "file",
+									"src": [],
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{host}}/api/datasets/upload/gray",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"datasets",
+								"upload",
+								"gray"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "dataset_retrive",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/datasets/kegr7aezr",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"datasets",
+								"kegr7aezr"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "dataset_update",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"l0qj10rmr\",\n    \"name\": \"usa\",\n    \"owner\": \"gray\",\n    \"size\": 5143211,\n    \"feature_count\": 273,\n    \"extent\": [\n        -179.14734,\n        17.884813,\n        179.77847,\n        71.352561\n    ],\n    \"created\": \"2020-05-16T11:50:31.940496+08:00\",\n    \"modified\": \"2020-05-16T11:50:31.940496+08:00\",\n    \"description\": \"\",\n    \"public\": 0,\n    \"geotype\": \"Multi Polygon\",\n    \"fields\": {\n        \"AREA\": \"Real\",\n        \"DIVISION\": \"Integer\",\n        \"LSAD\": \"Integer\",\n        \"LSAD_TRANS\": \"String\",\n        \"NAME\": \"String\",\n        \"PERIMETER\": \"Real\",\n        \"REGION\": \"Integer\",\n        \"ST99_D00_\": \"Integer\",\n        \"ST99_D00_I\": \"Integer\",\n        \"STATE\": \"Integer\"\n    },\n    \"version\": 0,\n    \"edited\": 0\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/datasets/l0qj10rmr",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"datasets",
+								"l0qj10rmr"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "dataset_delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/datasets/l0qj10rmr",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"datasets",
+								"l0qj10rmr"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "dataset_tile",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/datasets/kegr7aezr/12/3372/1551.mvt",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"datasets",
+								"kegr7aezr",
+								"12",
+								"3372",
+								"1551.mvt"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "dataset_tilejson",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/datasets/kegr7aezr/tile.json",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"datasets",
+								"kegr7aezr",
+								"tile.json"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "dataset_backup",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"foo\",\r\n  \"description\": \"bar\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/datasets/vouyg06wr/backup",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"datasets",
+								"vouyg06wr",
+								"backup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "dataset_features",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/datasets/kegr7aezr/features?start=1&limit=2",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"datasets",
+								"kegr7aezr",
+								"features"
+							],
+							"query": [
+								{
+									"key": "start",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "dataset_features_retrive",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"id\": \"{feature_id}\",\r\n  \"type\": \"Feature\",\r\n  \"geometry\": {\r\n    \"type\": \"Polygon\",\r\n    \"coordinates\": [\r\n      [\r\n        [ 100, 0 ],\r\n        [ 101, 0 ],\r\n        [ 101, 1 ],\r\n        [ 100, 1 ],\r\n        [ 100, 0 ]\r\n      ]\r\n    ]\r\n  },\r\n  \"properties\": {\r\n    \"prop0\": \"value0\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/datasets/kegr7aezr/features/2",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"datasets",
+								"kegr7aezr",
+								"features",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "dataset_features_update",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"geometry\": {\n        \"coordinates\": [\n            [\n                [\n                    120.2154123,\n                    30.2731277\n                ],\n                [\n                    120.2155958,\n                    30.271411\n                ],\n                [\n                    120.217996,\n                    30.2680461\n                ],\n                [\n                    120.2180449,\n                    30.2679775\n                ],\n                [\n                    120.2195391,\n                    30.2660451\n                ],\n                [\n                    120.222525,\n                    30.2615554\n                ],\n                [\n                    120.2277466,\n                    30.2553051\n                ]\n            ]\n        ],\n        \"type\": \"MultiLineString\"\n    },\n    \"properties\": {\n        \"code\": \"8103\",\n        \"fclass\": \"canal\",\n        \"gid\": 2,\n        \"name\": \"\",\n        \"osm_id\": \"4430318\",\n        \"width\": \"0\"\n    },\n    \"type\": \"Feature\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/datasets/kegr7aezr/features/2",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"datasets",
+								"kegr7aezr",
+								"features",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "dataset_features_insert",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"geometry\": {\n        \"coordinates\": [\n            [\n                [\n                    120.2154123,\n                    30.2731277\n                ],\n                [\n                    120.2155958,\n                    30.271411\n                ],\n                [\n                    120.217996,\n                    30.2680461\n                ],\n                [\n                    120.2180449,\n                    30.2679775\n                ],\n                [\n                    120.2195391,\n                    30.2660451\n                ],\n                [\n                    120.222525,\n                    30.2615554\n                ],\n                [\n                    120.2277466,\n                    30.2553051\n                ]\n            ]\n        ],\n        \"type\": \"MultiLineString\"\n    },\n    \"properties\": {\n        \"code\": \"8103\",\n        \"fclass\": \"canal\",\n        \"gid\": 2,\n        \"name\": \"\",\n        \"osm_id\": \"4430318\",\n        \"width\": \"0\"\n    },\n    \"type\": \"Feature\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/datasets/kegr7aezr/features",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"datasets",
+								"kegr7aezr",
+								"features"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "dataset_features_delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"id\": \"{feature_id}\",\r\n  \"type\": \"Feature\",\r\n  \"geometry\": {\r\n    \"type\": \"Polygon\",\r\n    \"coordinates\": [\r\n      [\r\n        [ 100, 0 ],\r\n        [ 101, 0 ],\r\n        [ 101, 1 ],\r\n        [ 100, 1 ],\r\n        [ 100, 0 ]\r\n      ]\r\n    ]\r\n  },\r\n  \"properties\": {\r\n    \"prop0\": \"value0\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/datasets/v1/gray/vafwpz6zr/features/3",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"datasets",
+								"v1",
+								"gray",
+								"vafwpz6zr",
+								"features",
+								"3"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "fonts",
+			"item": [
+				{
+					"name": "font_list",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/fonts/list",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"fonts",
+								"list"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "font_glyp",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/fonts/Noto Sans Regular88/0-255.pbf",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"fonts",
+								"Noto Sans Regular88",
+								"0-255.pbf"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "font_add",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/E:/go/src/github.com/chenguan1/Mapscope/data/fonts/mapscope/Noto Sans Regular.pbfonts"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{host}}/api/fonts/upload",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"fonts",
+								"upload"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "font_delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/E:/go/src/github.com/chenguan1/Mapscope/data/fonts/mapscope/Noto Sans Regular.pbfonts"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{host}}/api/fonts/Noto Sans Regular",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"fonts",
+								"Noto Sans Regular"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "test",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/test55445",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"test55445"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
