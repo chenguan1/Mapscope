@@ -35,11 +35,18 @@ func TilesetUpload(ctx context.Context) {
 		case ".mbtiles":
 			ts, err := services.TilesetLoad(f.Path)
 			if err != nil {
-				ctx.Application().Logger().Errorf("FontAdd err: %v", err)
-				res.FailMsg("load font file failed.")
+				ctx.Application().Logger().Errorf("TilesetLoad err: %v", err)
+				res.FailMsg("load Tileset file failed.")
 				return
 			}
 			ts.Id,_ = shortid.GenerateLower()
+			if err = ts.Save(); err != nil{
+				ctx.Application().Logger().Errorf("Tileset save err: %v", err)
+				res.FailMsg("Tileset save failed.")
+				return
+			}
+
+
 			ctx.Application().Logger().Info(f)
 			tss = append(tss, ts)
 		default:

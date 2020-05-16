@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"Mapscope/internal/database"
+	"time"
+)
 
 /*
 Not Authorized - No Token	401	No token was used in the query.
@@ -64,4 +67,9 @@ type TilesetMetadata struct {
 type TilesetVectorLayer struct {
 	Description string
 	Fields      map[string]string
+}
+// 保存dataset到数据库中,要保证Name 唯一
+func (ts *Tileset) Save() error {
+	db := database.Get()
+	return db.Save(ts).Error
 }

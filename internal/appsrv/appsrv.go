@@ -25,6 +25,7 @@ func Run() {
 	}
 	defer cache.Destroy()
 
+	database.Get().AutoMigrate(&models.Tileset{})
 	database.Get().AutoMigrate(&models.Datasource{})
 	database.Get().AutoMigrate(&models.Dataset{})
 	database.Get().AutoMigrate(&models.Font{})
