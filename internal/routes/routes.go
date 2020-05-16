@@ -60,7 +60,10 @@ func SetRoutes(app *iris.Application) {
 	// tilesets
 	ts := api.Party("/tilesets")
 	{
-		ts.Get("/{username}", TilesetList)                                                        // List tilesets
+		ts.Get("/list/{username}", TilesetList)                                                        // List tilesets
+		ts.Post("/upload/{username}",TilesetUpload) // upload mbtiles file
+
+
 		ts.Delete("/{username}/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}", TilesetDelete) // Delete tileset
 		ts.Get("/{tilesetjson:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+.json)}", TilesetMetadata)    // Retrieve TileJSON metadata
 

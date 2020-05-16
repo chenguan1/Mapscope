@@ -17,6 +17,7 @@ type Tileset struct {
 	Id          string     `json:"id"`
 	Name        string     `json:"name"`
 	Type        string     `json:"type"`
+	Format      string     `json:"format"`
 	Filesize    int64      `json:"filesize"`
 	Center      [3]float64 `json:"center"`
 	Description string     `json:"description"`

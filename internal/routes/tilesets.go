@@ -1,14 +1,55 @@
 package routes
 
 import (
+	"Mapscope/internal/config"
 	"Mapscope/internal/models"
+	"Mapscope/internal/services"
+	"Mapscope/internal/thirdparty/teris-io/shortid"
+	"Mapscope/internal/utils"
 	"github.com/kataras/iris/v12/context"
 	"net/http"
+	"strings"
 )
 
 /*
 https://docs.mapbox.com/api/maps/#create-a-tileset
 */
+
+
+// 上传Mbtiles
+func TilesetUpload(ctx context.Context) {
+	user := ctx.Params().Get("username")
+
+
+	uploadPath := config.PathUploads(user)
+	utils.EnsurePathExist(uploadPath)
+	files := utils.SaveFormFiles(ctx, uploadPath, false)
+
+	ctx.Application().Logger().Debug(files)
+
+	res := utils.NewRes(ctx)
+
+	tss := make([]*models.Tileset,0, len(files))
+	for _, f := range files {
+		switch strings.ToLower(f.Ext) {
+		case ".mbtiles":
+			ts, err := services.TilesetLoad(f.Path)
+			if err != nil {
+				ctx.Application().Logger().Errorf("FontAdd err: %v", err)
+				res.FailMsg("load font file failed.")
+				return
+			}
+			ts.Id,_ = shortid.GenerateLower()
+			ctx.Application().Logger().Info(f)
+			tss = append(tss, ts)
+		default:
+			continue
+		}
+	}
+
+
+	res.DoneData(tss)
+}
 
 func TilesetCreate(ctx context.Context) {
 	ts := ctx.Params().Get("tileset")

@@ -60,7 +60,7 @@ func (dt *Dataset) ToTileJson() *Tilejson {
 	tj.Bounds[3] = dt.Extent[3]
 	url := fmt.Sprintf("http://localhost:8080/datasets/v1/%s/%s/{z}/{x}/{y}.mvt", dt.Owner, dt.Id)
 	tj.Tiles = append(tj.Tiles, url)
-	tj.VectorLayers = append(tj.VectorLayers, vectorLayer{
+	tj.VectorLayers = append(tj.VectorLayers, VectorLayer{
 		Id:      dt.Name,
 		Minzoom: 4,
 		Maxzoom: 24,

@@ -30,7 +30,7 @@ func SaveFormFiles(ctx context.Context, folder string, overwrite bool) []models.
 
 		if !overwrite {
 			if _, err := os.Stat(ff.Path); !os.IsNotExist(err) {
-				header.Filename = sid + header.Filename
+				header.Filename = sid + "_" + header.Filename
 				ff.Path = filepath.Join(folder, header.Filename)
 			}
 		}
