@@ -56,16 +56,6 @@ func SetRoutes(app *iris.Application) {
 	// tilesets
 	ts := app.Party("/tilesets/v1")
 	{
-		// tileset source
-		tss := ts.Party("/sources")
-		{
-
-			tss.Post("/{username}/{id}", TilesetSourceCreate)   // Create a tileset source, id: tileset source ID
-			tss.Get("/{username}/{id}", TilesetSourceRetrieve)  // Retrieve tileset source information
-			tss.Get("/{username}", TilesetSourceList)           // List tileset sources
-			tss.Delete("/{username}/{id}", TilesetSourceDelete) // Beta
-		}
-
 		ts.Post("/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}", TilesetCreate)               // Create a tileset
 		ts.Post("/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}/publish", TilesetPublish)      // Publish a tileset
 		ts.Get("/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}/status", TilesetStatus)         // Retrieve the status of a tileset
