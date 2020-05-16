@@ -14,20 +14,20 @@ func NewFields() Fields {
 	return fds
 }
 
-func (f Fields) Set(key,value string)  {
+func (f Fields) Set(key, value string) {
 	f[key] = value
 }
 
-func (f Fields) Get(key string) (string, bool)  {
-	v,ok := f[key]
+func (f Fields) Get(key string) (string, bool) {
+	v, ok := f[key]
 	if ok {
 		return v, true
-	}else{
+	} else {
 		return "", false
 	}
 }
 
-func (f Fields) Value() (value driver.Value, err error)  {
+func (f Fields) Value() (value driver.Value, err error) {
 
 	data, err := json.Marshal(f)
 	if err != nil {
@@ -46,9 +46,8 @@ func (f *Fields) Scan(value interface{}) error {
 		return fmt.Errorf("Invalid Scan Source")
 	}
 
-	return json.Unmarshal(s,f)
+	return json.Unmarshal(s, f)
 }
-
 
 func (fs Fields) Keys() []string {
 	//fm := map[string]string(fs)
@@ -64,7 +63,7 @@ func (fs Fields) Keys() []string {
 func (fs Fields) Types() []string {
 	j := 0
 	types := make([]string, len(fs))
-	for _,v := range fs {
+	for _, v := range fs {
 		types[j] = v
 		j++
 	}

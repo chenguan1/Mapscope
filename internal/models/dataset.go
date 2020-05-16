@@ -34,19 +34,18 @@ func (dt *Dataset) Save() error {
 
 	// 检查是否重名，如果重名则需要将名称加上id
 	var dtSameName []Dataset
-	err := db.Where(Dataset{Name:dt.Name}).Find(&dtSameName).Error
-	if err != nil{
+	err := db.Where(Dataset{Name: dt.Name}).Find(&dtSameName).Error
+	if err != nil {
 		return fmt.Errorf("database cnn failed. %v", err)
 	}
 
 	// 如果重名，name加上sid
-	if len(dtSameName) > 0{
+	if len(dtSameName) > 0 {
 		dt.Name = dt.Name + "_" + dt.Id
 	}
 
 	return db.Save(dt).Error
 }
-
 
 // 得到tilejson
 func (dt *Dataset) ToTileJson() *Tilejson {
@@ -62,20 +61,19 @@ func (dt *Dataset) ToTileJson() *Tilejson {
 	url := fmt.Sprintf("http://localhost:8080/datasets/v1/%s/%s/{z}/{x}/{y}.mvt", dt.Owner, dt.Id)
 	tj.Tiles = append(tj.Tiles, url)
 	tj.VectorLayers = append(tj.VectorLayers, vectorLayer{
-		Id: dt.Name,
-		Minzoom:4,
-		Maxzoom:24,
+		Id:      dt.Name,
+		Minzoom: 4,
+		Maxzoom: 24,
 	})
 
 	long := (tj.Bounds[0] + tj.Bounds[2]) / 2.0
-	lat  := (tj.Bounds[1] + tj.Bounds[3]) / 2.0
-	tj.Center = [3]float64{long,lat,float64(tj.Minzoom)}
+	lat := (tj.Bounds[1] + tj.Bounds[3]) / 2.0
+	tj.Center = [3]float64{long, lat, float64(tj.Minzoom)}
 
 	return tj
 }
 
-
 // 判断是否处于编辑状态
-func (dt *Dataset)IsEditing() bool  {
+func (dt *Dataset) IsEditing() bool {
 	return dt.Edited != 0
 }

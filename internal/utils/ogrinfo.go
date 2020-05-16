@@ -125,8 +125,8 @@ func parseOgrinfo(str string) (*OgrInfo, error) {
 	filedsStrs := regexp.MustCompile(`.+: \w+ \([.0-9]+\)`).FindAllString(str, -1)
 	for _, s := range filedsStrs {
 		filedName := s[:strings.Index(s, ":")]
-		filedType := s[strings.Index(s, ":")+2:strings.Index(s, " (")]
-		fds.Set(filedName,filedType)
+		filedType := s[strings.Index(s, ":")+2 : strings.Index(s, " (")]
+		fds.Set(filedName, filedType)
 	}
 
 	//fmt.Println(fds)

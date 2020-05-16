@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"github.com/paulmach/orb/geojson"
 	"time"
-
 	//gogeo "github.com/paulmach/go.geojson"
 )
 

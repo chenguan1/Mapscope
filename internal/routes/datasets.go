@@ -301,8 +301,7 @@ func DatasetTile(ctx context.Context) {
 // 获取Tilejson
 func DatasetTilejson(ctx context.Context) {
 	//user := ctx.Params().Get("username")
-	dtids := strings.Split(ctx.Params().Get("dataset_ids"),",")
-
+	dtids := strings.Split(ctx.Params().Get("dataset_ids"), ",")
 
 	var err error
 
@@ -357,7 +356,7 @@ func DatasetBackupList(ctx context.Context) {
 	res := utils.NewRes(ctx)
 
 	bks, err := services.DatasetBackupList(dtid)
-	if err != nil{
+	if err != nil {
 		ctx.Application().Logger().Error("DatasetBackup err: %v", err)
 		res.FailMsg("get databack up err: " + err.Error())
 		return
@@ -379,10 +378,10 @@ func DatasetBackupRevert(ctx context.Context) {
 		return
 	}
 
-	versionNum,_ := strconv.Atoi(version)
+	versionNum, _ := strconv.Atoi(version)
 
-	dt,err := services.DatasetRevertTo(dtid, versionNum)
-	if err != nil{
+	dt, err := services.DatasetRevertTo(dtid, versionNum)
+	if err != nil {
 		ctx.Application().Logger().Error("DatasetBackupRevert err: %v", err)
 		res.FailMsg("revert failed.")
 		return

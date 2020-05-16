@@ -8,7 +8,7 @@ import (
 
 type Bound [4]float64
 
-func (b Bound) Value() (value driver.Value, err error)  {
+func (b Bound) Value() (value driver.Value, err error) {
 
 	data, err := json.Marshal(b)
 	if err != nil {
@@ -27,5 +27,5 @@ func (b *Bound) Scan(value interface{}) error {
 		return fmt.Errorf("Invalid Scan Source")
 	}
 
-	return json.Unmarshal(s,b)
+	return json.Unmarshal(s, b)
 }

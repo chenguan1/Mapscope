@@ -24,16 +24,16 @@ Not Found	404	Check the font name or names you used in the query.
 
 func FontGlypRange(ctx context.Context) {
 	//user := ctx.Params().Get("username")
-	font := ctx.Params().Get("font")
+	font := ctx.Params().Get("fonts")
 	pbf := ctx.Params().Get("rangepbf") // 0-255.pbf
 
 	//fmt.Printf("%v,%v,%v\n", user, font, pbf)
 
 	res := utils.NewRes(ctx)
 
-	fonts := strings.Split(font,",")
-	data,err := services.FontGlyphs(fonts,pbf)
-	if err != nil{
+	fonts := strings.Split(font, ",")
+	data, err := services.FontGlyphs(fonts, pbf)
+	if err != nil {
 		res.FailMsg("get font range failed.")
 		return
 	}
@@ -45,55 +45,57 @@ func FontGlypRange(ctx context.Context) {
 }
 
 func FontList(ctx context.Context) {
-	user := ctx.Params().Get("username")
+	//user := ctx.Params().Get("username")
+	user := "mapscope"
 
 	res := utils.NewRes(ctx)
 
-	fts,err := services.FontList(user)
+	fts, err := services.FontList(user)
 	if err != nil {
 		res.FailMsg("Get font list failed.")
 		return
 	}
 
 	fonts := make([]string, 0, len(fts))
-	for _,f := range fts{
-		fonts = append(fonts,f.Name)
+	for _, f := range fts {
+		fonts = append(fonts, f.Name)
 	}
 
 	res.DoneData(fonts)
 }
 
-
 // 上传字体
 func FontAdd(ctx context.Context) {
-	user := ctx.Params().Get("username")
+	//user := ctx.Params().Get("username")
+	user := "mapscope"
 
 	uploadPath := config.PathUploads(user)
-	files := utils.SaveFormFiles(ctx, uploadPath,true)
+	utils.EnsurePathExist(uploadPath)
+	files := utils.SaveFormFiles(ctx, uploadPath, true)
 
 	ctx.Application().Logger().Debug(files)
 
 	res := utils.NewRes(ctx)
 
-	fonts := make([]models.Font,0, len(files))
-	for _,f := range files{
+	fonts := make([]models.Font, 0, len(files))
+	for _, f := range files {
 		switch strings.ToLower(f.Ext) {
 		case ".pbfonts":
-			ft,err := services.FontLoad(f.Path)
-			if err != nil{
+			ft, err := services.FontLoad(f.Path)
+			if err != nil {
 				ctx.Application().Logger().Errorf("FontAdd err: %v", err)
 				res.FailMsg("load font file failed.")
 				return
 			}
 			ft.Owner = user
-			fonts = append(fonts,*ft)
+			fonts = append(fonts, *ft)
 		default:
 			continue
 		}
 	}
 
-	for _,ft := range fonts{
-		if err := ft.Save(); err != nil{
+	for _, ft := range fonts {
+		if err := ft.Save(); err != nil {
 			ctx.Application().Logger().Errorf("FontAdd err: %v", err)
 			res.FailMsg("save font info failed.")
 			return
@@ -103,7 +105,6 @@ func FontAdd(ctx context.Context) {
 	res.DoneData(&fonts)
 }
 
-
 // 上传字体
 func FontDelete(ctx context.Context) {
 	//user := ctx.Params().Get("username")
@@ -112,7 +113,7 @@ func FontDelete(ctx context.Context) {
 	res := utils.NewRes(ctx)
 
 	err := services.FontDelete(font)
-	if err != nil{
+	if err != nil {
 		ctx.Application().Logger().Errorf("Font delete err: %v", err)
 		res.FailMsg(fmt.Sprintf("font %s delete failed.", font))
 	}

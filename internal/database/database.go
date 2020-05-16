@@ -30,18 +30,22 @@ func Initialize() error {
 	return nil
 }
 
+func Destroy() error {
+	return db.Close()
+}
+
 func Get() *gorm.DB {
 	return db
 }
 
 // 打开sqlite数据库
 func OpenSqlite(path string) (*gorm.DB, error) {
-	if sqliteDbs == nil{
+	if sqliteDbs == nil {
 		sqliteDbs = make(map[string]*gorm.DB)
 	}
 
-	v,ok := sqliteDbs[path]
-	if ok{
+	v, ok := sqliteDbs[path]
+	if ok {
 		return v, nil
 	}
 

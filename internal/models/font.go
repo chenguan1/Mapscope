@@ -12,7 +12,7 @@ const (
 type Font struct {
 	Id          string `json:"id" gorm:"primary_key"`
 	Name        string `json:"name" gorm:"index;not null"`
-	Path        string `json:"path" gorm:"not null"`
+	Path        string `json:"-" gorm:"not null"`
 	Owner       string `json:"owner" gorm:"index"`
 	Type        string `json:"type"`
 	Size        int64  `json:"size"`
@@ -21,6 +21,6 @@ type Font struct {
 	Compression int    `json:"compression"`
 }
 
-func (ft *Font) Save() error  {
+func (ft *Font) Save() error {
 	return database.Get().Save(ft).Error
 }

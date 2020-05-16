@@ -14,11 +14,10 @@ type Tilejson struct {
 	VectorLayers []vectorLayer `json:"vector_layers"`
 }
 
-
 type vectorLayer struct {
-	Id string `json:"id"`
-	Minzoom      int           `json:"minzoom"`
-	Maxzoom      int           `json:"maxzoom"`
+	Id      string `json:"id"`
+	Minzoom int    `json:"minzoom"`
+	Maxzoom int    `json:"maxzoom"`
 }
 
 func NewTileJson() *Tilejson {
@@ -32,8 +31,8 @@ func NewTileJson() *Tilejson {
 	}
 }
 
-func (tj *Tilejson) UpdateCenter()  {
+func (tj *Tilejson) UpdateCenter() {
 	long := (tj.Bounds[0] + tj.Bounds[2]) / 2.0
-	lat  := (tj.Bounds[1] + tj.Bounds[3]) / 2.0
-	tj.Center = [3]float64{long,lat,float64(tj.Minzoom)}
+	lat := (tj.Bounds[1] + tj.Bounds[3]) / 2.0
+	tj.Center = [3]float64{long, lat, float64(tj.Minzoom)}
 }

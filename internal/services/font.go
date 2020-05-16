@@ -35,19 +35,18 @@ func FontList(user string) ([]models.Font, error) {
 }
 
 func FontDelete(fontname string) error {
-	return database.Get().Delete(models.Font{Id:fontname}).Error
+	return database.Get().Delete(models.Font{Id: fontname}).Error
 }
-
 
 // 载入字体
 func FontLoad(path string) (*models.Font, error) {
 	ext := strings.ToLower(filepath.Ext(path))
-	if ext != models.PBFONTEXT{
+	if ext != models.PBFONTEXT {
 		return nil, fmt.Errorf("FontLoad err: ext %s is unsurpported now.", ext)
 	}
 
-	fstat,err := os.Stat(path)
-	if err != nil{
+	fstat, err := os.Stat(path)
+	if err != nil {
 		return nil, fmt.Errorf("FontLoad err: %v", err)
 	}
 
@@ -66,13 +65,13 @@ func FontLoad(path string) (*models.Font, error) {
 		Compression: 0,
 	}
 
-	return out,nil
+	return out, nil
 }
 
 // 获取字体切片
 func fontPbf(name, fontrange string) ([]byte, error) {
-	ft,err := FontGet(name)
-	if err != nil{
+	ft, err := FontGet(name)
+	if err != nil {
 		return nil, err
 		/*if ft,err = FontGet(models.DEFAULTFONT); err != nil{
 			if err != nil {
@@ -81,8 +80,8 @@ func fontPbf(name, fontrange string) ([]byte, error) {
 		}*/
 	}
 
-	db3,err := database.OpenSqlite(ft.Path)
-	if err != nil{
+	db3, err := database.OpenSqlite(ft.Path)
+	if err != nil {
 		return nil, err
 	}
 
@@ -104,12 +103,12 @@ func FontGlyphs(fonts []string, fontrange string) ([]byte, error) {
 	case 0:
 		return nil, fmt.Errorf("FontGlyphs, fontstack is nil.")
 	case 1:
-		data, err := fontPbf(fonts[0],fontrange)
+		data, err := fontPbf(fonts[0], fontrange)
 		if err != nil {
 			//return  nil, fmt.Errorf("FontGlyphs err: %v", err)
 			fmt.Printf("FontGlyphs err: %v\n", err)
-			if data, err = fontPbf(models.DEFAULTFONT,fontrange); err != nil{
-				return  nil, fmt.Errorf("FontGlyphs font not found, use default err: %v", err)
+			if data, err = fontPbf(models.DEFAULTFONT, fontrange); err != nil {
+				return nil, fmt.Errorf("FontGlyphs font not found, use default err: %v", err)
 			}
 		}
 		pbf = data
@@ -122,7 +121,7 @@ func FontGlyphs(fonts []string, fontrange string) ([]byte, error) {
 				hasdefault = true
 			}
 
-			f,err := FontGet(font)
+			f, err := FontGet(font)
 			if err != nil {
 				haslost = true
 				continue
@@ -131,7 +130,7 @@ func FontGlyphs(fonts []string, fontrange string) ([]byte, error) {
 		}
 		//没有默认字体且有丢失字体,则加载默认字体
 		if !hasdefault && haslost {
-			f,err := FontGet(models.DEFAULTFONT)
+			f, err := FontGet(models.DEFAULTFONT)
 			if err == nil {
 				fs = append(fs, f)
 			}
@@ -144,13 +143,13 @@ func FontGlyphs(fonts []string, fontrange string) ([]byte, error) {
 			//fallbacks unchanging
 			defer wg.Done()
 			d, err := database.OpenSqlite(f.Path)
-			if err != nil{
-				fmt.Printf("FontGlyphs getFontPBF %v err: %v", f.Path ,err)
+			if err != nil {
+				fmt.Printf("FontGlyphs getFontPBF %v err: %v", f.Path, err)
 				return
 			}
 			err = d.DB().QueryRow("select data from fonts where range = ?", fontrange).Scan(&contents[index])
 			if err != nil {
-				fmt.Printf("FontGlyphs getFontPBF %v err: %v", f.Path ,err)
+				fmt.Printf("FontGlyphs getFontPBF %v err: %v", f.Path, err)
 				if err == sql.ErrNoRows {
 					return
 				}

@@ -47,4 +47,3 @@ func PathCaches() string {
 	dir, _ = filepath.Abs(dir)
 	return dir
 }
-

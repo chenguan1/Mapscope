@@ -1,6 +1,7 @@
 package appsrv
 
 import (
+	"Mapscope/internal/cache"
 	"Mapscope/internal/config"
 	"Mapscope/internal/database"
 	"Mapscope/internal/models"
@@ -17,6 +18,12 @@ func Run() {
 	if err = database.Initialize(); err != nil {
 		panic(err)
 	}
+	defer database.Destroy()
+
+	if err = cache.Initialize(); err != nil {
+		panic(err)
+	}
+	defer cache.Destroy()
 
 	database.Get().AutoMigrate(&models.Datasource{})
 	database.Get().AutoMigrate(&models.Dataset{})

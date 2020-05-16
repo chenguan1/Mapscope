@@ -7,7 +7,6 @@ import (
 	"time"
 )
 
-
 // dataset backip
 func DatasetBackup(dataset_id string, force bool) (*models.DataBackup, error) {
 	dt, err := DatasetGet(dataset_id)
@@ -51,12 +50,12 @@ func DatasetBackup(dataset_id string, force bool) (*models.DataBackup, error) {
 	tx.DropTableIfExists(bk.TableName)
 	// 备份
 	sql := fmt.Sprintf(`CREATE TABLE %v as (SELECT * FROM %v)`, bk.TableName, dt.TableName)
-	if err = tx.Exec(sql).Error; err != nil{
+	if err = tx.Exec(sql).Error; err != nil {
 		tx.Rollback()
 		return nil, fmt.Errorf("dataset backup err: %v", err)
 	}
 
-	if err = tx.Save(&bk).Error; err != nil{
+	if err = tx.Save(&bk).Error; err != nil {
 		tx.Rollback()
 		return nil, fmt.Errorf("dataset backup err.: %v", err)
 	}
@@ -64,14 +63,13 @@ func DatasetBackup(dataset_id string, force bool) (*models.DataBackup, error) {
 	dt.Modified = time.Now()
 	tx.Save(&dt)
 
-	if err = tx.Commit().Error; err != nil{
+	if err = tx.Commit().Error; err != nil {
 		tx.Rollback()
 		return nil, fmt.Errorf("dataset backup err..: %v", err)
 	}
 
 	return &bk, nil
 }
-
 
 // 删除某dataset相关的所有记录
 func DataBackupDeleteAll(dataset_id string) error {
@@ -84,23 +82,23 @@ func DataBackupDeleteAll(dataset_id string) error {
 
 	// all backups
 	var bks []models.DataBackup
-	err = db.Where(models.DataBackup{Dataset:dt.Id, Version: dt.Version}).Find(&bks).Error
+	err = db.Where(models.DataBackup{Dataset: dt.Id, Version: dt.Version}).Find(&bks).Error
 	if err != nil {
 		return fmt.Errorf("database cnn failed. %v", err)
 	}
 
-	if len(bks) == 0{
+	if len(bks) == 0 {
 		return nil
 	}
 
 	tx := db.Begin()
 
-	for _,bk := range bks{
-		if err = tx.DropTableIfExists(bk.TableName).Error; err != nil{
+	for _, bk := range bks {
+		if err = tx.DropTableIfExists(bk.TableName).Error; err != nil {
 			tx.Rollback()
 			return fmt.Errorf("DatasetBackup delete err.: %v", err)
 		}
-		if err = tx.Delete(bk).Error; err != nil{
+		if err = tx.Delete(bk).Error; err != nil {
 			tx.Rollback()
 			return fmt.Errorf("DatasetBackup delete err..: %v", err)
 		}
@@ -122,7 +120,7 @@ func DatasetBackupList(dataset_id string) ([]models.DataBackup, error) {
 
 	// all backups
 	var bks []models.DataBackup
-	err = db.Where(models.DataBackup{Dataset:dt.Id}).Find(&bks).Error
+	err = db.Where(models.DataBackup{Dataset: dt.Id}).Find(&bks).Error
 	if err != nil {
 		return nil, fmt.Errorf("DatasetBackupList err: %v", err)
 	}

@@ -14,16 +14,20 @@ Invalid start key	422	Check the start key used in the query.
 
 // https://docs.mapbox.com/api/maps/#response-list-tilesets
 type Tileset struct {
-	Type        string     `json:"type"`
-	Center      [3]float64 `json:"center"`
-	Created     time.Time  `json:"created"`
-	Description string     `json:"description"`
-	Filesize    int64      `json:"filesize"`
 	Id          string     `json:"id"`
-	Modified    time.Time  `json:"modified"`
 	Name        string     `json:"name"`
+	Type        string     `json:"type"`
+	Filesize    int64      `json:"filesize"`
+	Center      [3]float64 `json:"center"`
+	Description string     `json:"description"`
 	Visibility  string     `json:"visibility"`
 	Status      string     `json:"status"`
+	Created     time.Time  `json:"created"`
+	Modified    time.Time  `json:"modified"`
+
+	// mapscope
+	Dataset string `json:"dataset"` // dataset id
+
 }
 
 type TilesetCreateForm struct {
