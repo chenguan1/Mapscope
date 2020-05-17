@@ -60,22 +60,18 @@ func SetRoutes(app *iris.Application) {
 	// tilesets
 	ts := api.Party("/tilesets")
 	{
-		ts.Get("/list/{username}", TilesetList)                                                        // List tilesets
-		ts.Post("/upload/{username}",TilesetUpload) // upload mbtiles file
+		ts.Get("/list/{username}", TilesetList)      // List tilesets ok
+		ts.Post("/upload/{username}", TilesetUpload) // upload mbtiles file ok
+		ts.Delete("/{tileset_id}", TilesetDelete)    // Delete tileset ok
 
+		ts.Post("/publish/{dataset_id}", TilesetPublish) // Publish a dataset to tileset
+		ts.Get("/{tileset_id}/status", TilesetStatus)    // Retrieve the status of a tileset
 
-		ts.Delete("/{username}/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}", TilesetDelete) // Delete tileset
-		ts.Get("/{tilesetjson:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+.json)}", TilesetMetadata)    // Retrieve TileJSON metadata
-
-		ts.Post("/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}", TilesetCreate)               // Create a tileset
-		ts.Post("/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}/publish", TilesetPublish)      // Publish a tileset
-		ts.Get("/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}/status", TilesetStatus)         // Retrieve the status of a tileset
 		ts.Get("/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}/jobs/{job_id}", TilesetJobInfo) // Retrieve information about a single tileset job
 		ts.Get("/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}/jobs", TilesetJobList)          // List information about all jobs for a tileset
 		ts.Put("/queue", TilesetJobQueue)                                                          // View the Tilesets API global queue
 		ts.Put("/validateRecipe", TilesetRecipeValidate)                                           // Validate a recipe
 		ts.Get("/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}/recipe", TilesetRecipe)         // Retrieve a tileset's recipe
 		ts.Patch("/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}/recipe", TilesetRecipeUpdate) // Update a tileset's recipe
-
 	}
 }

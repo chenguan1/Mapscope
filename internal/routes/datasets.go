@@ -86,10 +86,7 @@ func DatasetUpdate(ctx context.Context) {
 
 // 删除datast
 func DatasetDelete(ctx context.Context) {
-	user := ctx.Params().Get("username")
 	dtid := ctx.Params().Get("dataset_id")
-
-	ctx.Application().Logger().Printf("delete %v.%v", user, dtid)
 
 	res := utils.NewRes(ctx)
 

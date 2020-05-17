@@ -15,11 +15,9 @@ import (
 https://docs.mapbox.com/api/maps/#create-a-tileset
 */
 
-
 // 上传Mbtiles
 func TilesetUpload(ctx context.Context) {
 	user := ctx.Params().Get("username")
-
 
 	uploadPath := config.PathUploads(user)
 	utils.EnsurePathExist(uploadPath)
@@ -29,7 +27,7 @@ func TilesetUpload(ctx context.Context) {
 
 	res := utils.NewRes(ctx)
 
-	tss := make([]*models.Tileset,0, len(files))
+	tss := make([]*models.Tileset, 0, len(files))
 	for _, f := range files {
 		switch strings.ToLower(f.Ext) {
 		case ".mbtiles":
@@ -39,21 +37,20 @@ func TilesetUpload(ctx context.Context) {
 				res.FailMsg("load Tileset file failed.")
 				return
 			}
-			ts.Id,_ = shortid.GenerateLower()
-			if err = ts.Save(); err != nil{
+			ts.Id, _ = shortid.GenerateLower()
+			ts.Owner = user
+
+			if err = ts.Save(); err != nil {
 				ctx.Application().Logger().Errorf("Tileset save err: %v", err)
 				res.FailMsg("Tileset save failed.")
 				return
 			}
-
-
-			ctx.Application().Logger().Info(f)
+			// ctx.Application().Logger().Info(f)
 			tss = append(tss, ts)
 		default:
 			continue
 		}
 	}
-
 
 	res.DoneData(tss)
 }
@@ -75,17 +72,20 @@ func TilesetCreate(ctx context.Context) {
 	ctx.JSON(tform)
 }
 
+
+/*
+发布一个dataset 为 tileset
+要使用job异步处理
+*/
 func TilesetPublish(ctx context.Context) {
-	ts := ctx.Params().Get("tileset")
+	dtid := ctx.Params().Get("dataset_id")
 
-	ctx.Application().Logger().Debug(ts)
-
-	res := map[string]string{
+	/*res := map[string]string{
 		"message": "Processing " + ts,
 		"job_id":  "afaddfa5654",
 	}
 
-	ctx.JSON(res)
+	ctx.JSON(res)*/
 }
 
 func TilesetStatus(ctx context.Context) {
@@ -188,17 +188,37 @@ func TilesetRecipeUpdate(ctx context.Context) {
 
 }
 
+// get tileset list by username
 func TilesetList(ctx context.Context) {
 	username := ctx.Params().Get("username")
-	ctx.Application().Logger().Debug(username)
-	ts := models.Tileset{}
-	tslist := make([]models.Tileset, 0)
-	tslist = append(tslist, ts)
-	ctx.JSON(tslist)
+	res := utils.NewRes(ctx)
+	tss, err := services.TilesetList(username)
+	if err != nil {
+		ctx.Application().Logger().Errorf("TilesetList err: %v", err)
+		res.FailMsg("Get tileset list failed.")
+		return
+	}
+	res.DoneData(tss)
 }
 
+// delete tileset
+/*
+1. remove record
+2. remove mbtiles file
+*/
 func TilesetDelete(ctx context.Context) {
-	ctx.StatusCode(http.StatusNoContent)
+	tsid := ctx.Params().Get("tileset_id")
+
+	res := utils.NewRes(ctx)
+
+	// 删除
+	if err := services.TilesetDelete(tsid); err != nil {
+		ctx.Application().Logger().Errorf("tilesetDelete err: %v", err)
+		res.FailMsg("delete tileset failed.")
+		return
+	}
+
+	res.DoneMsg("tileset has been deleted.")
 }
 
 func TilesetMetadata(ctx context.Context) {

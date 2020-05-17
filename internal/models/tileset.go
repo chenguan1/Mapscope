@@ -17,17 +17,22 @@ Invalid start key	422	Check the start key used in the query.
 
 // https://docs.mapbox.com/api/maps/#response-list-tilesets
 type Tileset struct {
-	Id          string     `json:"id"`
-	Name        string     `json:"name"`
-	Type        string     `json:"type"`
-	Format      string     `json:"format"`
-	Filesize    int64      `json:"filesize"`
-	Center      [3]float64 `json:"center"`
-	Description string     `json:"description"`
-	Visibility  string     `json:"visibility"`
-	Status      string     `json:"status"`
-	Created     time.Time  `json:"created"`
-	Modified    time.Time  `json:"modified"`
+	Id          string    `json:"id"`
+	Name        string    `json:"name"`
+	Type        string    `json:"type"`
+	Format      string    `json:"format"`
+	Filesize    int64     `json:"filesize"`
+	Center      Center    `json:"center" gorm:"type:json"`
+	Description string    `json:"description"`
+	Visibility  string    `json:"visibility"`
+	Public      int       `json:"public"`
+	Status      string    `json:"status"`
+	Created     time.Time `json:"created"`
+	Modified    time.Time `json:"modified"`
+
+	Path     string      `json:"-"`
+	Owner    string      `json:"owner"`
+	Metadata TilesetMeta `json:"metadata" gorm:"type:json"`
 
 	// mapscope
 	Dataset string `json:"dataset"` // dataset id
@@ -68,6 +73,7 @@ type TilesetVectorLayer struct {
 	Description string
 	Fields      map[string]string
 }
+
 // 保存dataset到数据库中,要保证Name 唯一
 func (ts *Tileset) Save() error {
 	db := database.Get()

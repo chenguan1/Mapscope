@@ -1,11 +1,10 @@
 package models
 
 import (
+	"database/sql/driver"
 	"encoding/json"
 	"fmt"
 	log "github.com/sirupsen/logrus"
-	"strconv"
-	"strings"
 )
 
 /*
@@ -23,12 +22,12 @@ json	{"vector_layers": [ { "id": "berlingbigsummarygeojson", "description": "", 
 
 // metadata 表信息
 type TilesetMeta struct {
-	Tilejson     string        `json:"tilejson"`
-	Name         string        `json:"name"`
-	Type         string        `json:"type"`
-	Format       string        `json:"format"`
-	Description  string        `json:"description"`
-//	Version      string        `json:"version"`
+	Tilejson    string `json:"tilejson"`
+	Name        string `json:"name"`
+	Type        string `json:"type"`
+	Format      string `json:"format"`
+	Description string `json:"description"`
+	//	Version      string        `json:"version"`
 	Minzoom      int           `json:"minzoom"`
 	Maxzoom      int           `json:"maxzoom"`
 	Bounds       [4]float64    `json:"bounds"`
@@ -36,16 +35,39 @@ type TilesetMeta struct {
 	VectorLayers []VectorLayer `json:"vector_layers"`
 }
 
+func (b TilesetMeta) Value() (value driver.Value, err error) {
+
+	data, err := json.Marshal(b)
+	if err != nil {
+		return nil, err
+	}
+
+	return string(data), nil
+}
+
+func (b *TilesetMeta) Scan(value interface{}) error {
+	if value == nil {
+		return nil
+	}
+	s, ok := value.([]byte)
+	if !ok {
+		return fmt.Errorf("Invalid Scan Source")
+	}
+
+	return json.Unmarshal(s, b)
+}
+
 // 从metadata表中解析信息
-func (tm *TilesetMeta)Parse(meta map[string]interface{}) error {
-	for k, v := range meta{
+func (tm *TilesetMeta) Parse(meta map[string]interface{}) error {
+	tm.Tilejson = "2.1.0"
+	for k, v := range meta {
 		switch k {
 		case "name":
 			tm.Name = v.(string)
 		case "minzoom":
-			tm.Minzoom,_ = strconv.Atoi(v.(string))
+			tm.Minzoom = v.(int)
 		case "maxzoom":
-			tm.Maxzoom,_ = strconv.Atoi(v.(string))
+			tm.Maxzoom = v.(int)
 		case "type":
 			tm.Type = v.(string)
 		case "format":
@@ -53,32 +75,32 @@ func (tm *TilesetMeta)Parse(meta map[string]interface{}) error {
 		case "description":
 			tm.Description = v.(string)
 		case "center":
-			items := strings.Split(v.(string),",")
-			if len(items) != 3{
+			items := v.([]float64)
+			if len(items) != 3 {
 				continue
 			}
-			tm.Center[0],_ = strconv.ParseFloat(items[0],64)
-			tm.Center[1],_ = strconv.ParseFloat(items[1],64)
-			tm.Center[2],_ = strconv.ParseFloat(items[2],64)
+			tm.Center[0] = items[0]
+			tm.Center[1] = items[1]
+			tm.Center[2] = items[2]
 		case "bounds":
-			items := strings.Split(v.(string),",")
-			if len(items) != 4{
+			items := v.([]float64)
+			if len(items) != 4 {
 				continue
 			}
-			tm.Bounds[0],_ = strconv.ParseFloat(items[0],64)
-			tm.Bounds[1],_ = strconv.ParseFloat(items[1],64)
-			tm.Bounds[2],_ = strconv.ParseFloat(items[2],64)
-			tm.Bounds[3],_ = strconv.ParseFloat(items[3],64)
+			tm.Bounds[0] = items[0]
+			tm.Bounds[1] = items[1]
+			tm.Bounds[2] = items[2]
+			tm.Bounds[3] = items[3]
 		case "json":
 			vlObj := v.(map[string]interface{})
-			vls,ok := vlObj["vector_layers"]
-			if !ok{
+			vls, ok := vlObj["vector_layers"]
+			if !ok {
 				log.Error("cannot read vector_layers info from metadata table.")
 				continue
 			}
-			tm.VectorLayers = make([]VectorLayer,0)
-			err := json.Unmarshal([]byte(vls.(string)),&tm.VectorLayers)
-			if err != nil{
+			tm.VectorLayers = make([]VectorLayer, 0)
+			err := json.Unmarshal([]byte(vls.(string)), &tm.VectorLayers)
+			if err != nil {
 				log.Errorf("parse vector_layer info failed: %v", err)
 				return fmt.Errorf("parse vector_layer info failed: %v", err)
 			}

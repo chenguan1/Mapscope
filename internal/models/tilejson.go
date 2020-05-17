@@ -14,7 +14,6 @@ type Tilejson struct {
 	VectorLayers []VectorLayer `json:"vector_layers"`
 }
 
-
 func NewTileJson() *Tilejson {
 	return &Tilejson{
 		Tilejson: "2.2.0",
