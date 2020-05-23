@@ -2,6 +2,7 @@ package services
 
 import (
 	"Mapscope/internal/config"
+	"Mapscope/internal/database"
 	"Mapscope/internal/models"
 	"Mapscope/internal/utils"
 	"fmt"
@@ -11,6 +12,16 @@ import (
 	"strings"
 	"time"
 )
+
+// 根据id获取datasource
+func DatasourceGet(datasource_id string) (*models.Datasource, error) {
+	var ds models.Datasource
+	err := database.Get().Where(models.Tileset{Id: datasource_id}).Find(&ds).Error
+	if err != nil {
+		return nil, fmt.Errorf("DatasourceGet err: %v", err)
+	}
+	return &ds, nil
+}
 
 // 从上传的文件中解析出Datasource列表
 func DatasourceFromUpload(files []models.FileUped, user string) ([]models.Datasource, error) {

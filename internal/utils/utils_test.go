@@ -39,6 +39,7 @@ func TestOgr2Db(t *testing.T) {
 }
 
 func TestOgrinfoPg(t *testing.T) {
+	return
 	para := OgrinfoPgParams{
 		Host:     "localhost",
 		Port:     "5432",
@@ -54,4 +55,30 @@ func TestOgrinfoPg(t *testing.T) {
 
 	fmt.Println(info)
 
+}
+
+func TestPg2geojson(t *testing.T) {
+	return
+	para := Pg2geojsonParams{
+		Pghost:    "localhost",
+		Pgport:    "5432",
+		Pguser:    "postgres",
+		Pgpswd:    "111111",
+		Dbname:    "learndb",
+		Geojson:   "test/frompg.geojson",
+		TableName: "osm_buildings",
+	}
+
+	err := Pg2geojson(para)
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestCreateMbtiles(t *testing.T) {
+	//"test/frompg.geojson"
+	err := CreateMbtiles([]string{"test/frompg.geojson"}, "frompg", "test/frompg.mbtiles")
+	if err != nil{
+		t.Error(err)
+	}
 }

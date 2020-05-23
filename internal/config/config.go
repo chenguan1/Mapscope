@@ -27,6 +27,13 @@ func PathDatasets(user string) string {
 	return dir
 }
 
+func PathTilesets(user string) string {
+	data := viper.GetString("paths.data")
+	dir := filepath.Join(data, "tilesets", user)
+	dir, _ = filepath.Abs(dir)
+	return dir
+}
+
 func PathDatasources(user string) string {
 	data := viper.GetString("paths.data")
 	dir := filepath.Join(data, "datasources", user)

@@ -64,7 +64,7 @@ func SetRoutes(app *iris.Application) {
 		ts.Post("/upload/{username}", TilesetUpload) // upload mbtiles file ok
 		ts.Delete("/{tileset_id}", TilesetDelete)    // Delete tileset ok
 
-		ts.Post("/publish/{dataset_id}", TilesetPublish) // Publish a dataset to tileset
+		ts.Post("/publish/{dataset_id}", TilesetPublish) // Publish a dataset to tileset ok or not...
 		ts.Get("/{tileset_id}/status", TilesetStatus)    // Retrieve the status of a tileset
 
 		ts.Get("/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}/jobs/{job_id}", TilesetJobInfo) // Retrieve information about a single tileset job

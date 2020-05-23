@@ -9,6 +9,16 @@ import (
 	"time"
 )
 
+// 根据id获取tileset
+func TilesetGet(tileset_id string) (*models.Tileset, error) {
+	var ts models.Tileset
+	err := database.Get().Where(models.Tileset{Id: tileset_id}).Find(&ts).Error
+	if err != nil {
+		return nil, fmt.Errorf("TilesetGet failed, err: %v", err)
+	}
+	return &ts, nil
+}
+
 func TilesetLoad(path string) (*models.Tileset, error) {
 	mb, err := mbtiles.NewDB(path)
 	if err != nil {

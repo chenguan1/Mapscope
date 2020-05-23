@@ -79,6 +79,15 @@ func TilesetCreate(ctx context.Context) {
 */
 func TilesetPublish(ctx context.Context) {
 	dtid := ctx.Params().Get("dataset_id")
+	res := utils.NewRes(ctx)
+	ds,err := services.Dataset2Tileset(dtid)
+	if err != nil{
+		ctx.Application().Logger().Error(err)
+		res.FailMsg("Tileset public failed, err:" + err.Error())
+		return
+	}
+
+	res.DoneData(ds)
 
 	/*res := map[string]string{
 		"message": "Processing " + ts,

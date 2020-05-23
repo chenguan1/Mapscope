@@ -36,7 +36,8 @@ type Tileset struct {
 
 	// mapscope
 	Dataset string `json:"dataset"` // dataset id
-
+	
+	Version int    `json:"version"`
 }
 
 type TilesetCreateForm struct {

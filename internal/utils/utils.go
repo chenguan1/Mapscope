@@ -120,7 +120,7 @@ func CopyFile(dstName, srcName string) (written int64, err error) {
 }
 
 func PathExist(path string) bool {
-	if _, err := os.Stat(path); os.IsExist(err) {
+	if _, err := os.Stat(path); !os.IsNotExist(err) {
 		return true
 	}
 	return false
