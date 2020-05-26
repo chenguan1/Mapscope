@@ -16,7 +16,7 @@ import (
 // 根据id获取datasource
 func DatasourceGet(datasource_id string) (*models.Datasource, error) {
 	var ds models.Datasource
-	err := database.Get().Where(models.Tileset{Id: datasource_id}).Find(&ds).Error
+	err := database.Get().Where(models.Datasource{Id: datasource_id}).Find(&ds).Error
 	if err != nil {
 		return nil, fmt.Errorf("DatasourceGet err: %v", err)
 	}

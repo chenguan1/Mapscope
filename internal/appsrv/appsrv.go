@@ -25,11 +25,13 @@ func Run() {
 	}
 	defer cache.Destroy()
 
-	database.Get().AutoMigrate(&models.Tileset{})
-	database.Get().AutoMigrate(&models.Datasource{})
-	database.Get().AutoMigrate(&models.Dataset{})
-	database.Get().AutoMigrate(&models.Font{})
-	database.Get().AutoMigrate(&models.DataBackup{})
+	db := database.Get()
+	db.AutoMigrate(&models.Tileset{})
+	db.AutoMigrate(&models.Datasource{})
+	db.AutoMigrate(&models.Dataset{})
+	db.AutoMigrate(&models.Font{})
+	db.AutoMigrate(&models.DataBackup{})
+	db.AutoMigrate(&models.Task{})
 
 	app := iris.Default()
 	app.Logger().SetLevel("debug")

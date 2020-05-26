@@ -12,10 +12,8 @@ type Task struct {
 	ID        string        `json:"id" form:"id" binding:"required" gorm:"primary_key"`
 	Base      string        `json:"base" form:"base" gorm:"index"`
 	Name      string        `json:"name" form:"name"`
-	Type      TaskType      `json:"type" form:"type" `
+	Type      TaskType      `json:"type" form:"type"`
 	Owner     string        `json:"owner" form:"owner"`
-	Count     int           `json:"count" form:"count"`
-	Total     int           `json:"total" form:"total"`
 	Progress  int           `json:"progress" form:"progress"`
 	Status    string        `json:"status"`
 	Error     string        `json:"error" `
@@ -24,7 +22,8 @@ type Task struct {
 	UpdatedAt time.Time     `json:"updated_at"`
 }
 
-func (task *Task) save() error {
+
+func (task *Task) Save() error {
 	db := database.Get()
 	err := db.Create(task).Error
 	if err != nil {
@@ -33,7 +32,7 @@ func (task *Task) save() error {
 	return nil
 }
 
-func (task *Task) update() error {
+func (task *Task) Update() error {
 	db := database.Get()
 	err := db.Model(&Task{}).Update(task).Error
 	if err != nil {

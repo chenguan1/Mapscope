@@ -4,13 +4,16 @@ import (
 	"Mapscope/internal/config"
 	"Mapscope/internal/database"
 	"Mapscope/internal/models"
+	"Mapscope/internal/thirdparty/teris-io/shortid"
 	"Mapscope/internal/utils"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"math"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 // 根据id获取dataset
@@ -206,85 +209,138 @@ func DatasetRevertTo(dtid string, version int) (*models.Dataset, error) {
 
 
 // dataset => tileset todo ...
-func Dataset2Tileset(dtid string) (*models.Tileset, error) {
+func Dataset2Tileset(dtid string) (*models.Task, error) {
 	dt, err := DatasetGet(dtid)
 	if err != nil {
 		return nil, fmt.Errorf("Dataset2Tileset err: %v", err)
 	}
 
 	// tileset是否已经存在，如果已经存在，则返回失败
-	ts,err := TilesetGet(dtid)
-	if err == nil && dt.Version == ts.Version{
-		return nil, fmt.Errorf("Dataset2Tileset err: Tileset exist.")
+	{
+		ts,err := TilesetGet(dtid)
+		if err == nil && dt.Version == ts.Version{
+			return nil, fmt.Errorf("Dataset2Tileset err: Tileset exist.")
+		}
 	}
 
-	gjson := "" // geojson 文件路径
-	// 如果geojson文件存在，则直接使用
-	if dt.Version == 0{
-		ds, err := DatasourceGet(dt.Source)
-		if err == nil{
-			if _,err = os.Stat(ds.Path); !os.IsNotExist(err){
-				gjson = ds.Path
+
+	sid ,_:= shortid.GenerateLower()
+	task := &models.Task{
+		ID:        sid,
+		Base:      dt.Id,
+		Name:      dt.Name,
+		Type:      models.TSPUBLIC, // "tspublic"
+		Owner:     dt.Owner,
+		Progress:  0,
+		Status:    "processing",
+		Error:     "",
+		Pipe:      make(chan struct{}),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	// 异步导入
+	TaskSet.Store(task.ID, task)
+	task.Save()
+	go func(dt *models.Dataset, task *models.Task) {
+		defer func(task *models.Task) {
+			task.Pipe <- struct{}{}
+		}(task)
+
+		gjson := "" // geojson 文件路径
+		// 如果geojson文件存在，则直接使用
+		if dt.Version == 0{
+			ds, err := DatasourceGet(dt.Source)
+			if err == nil{
+				if _,err = os.Stat(ds.Path); !os.IsNotExist(err){
+					gjson = ds.Path
+				}
 			}
 		}
-	}
-	// 如果geojson文件不存在，则从数据库中导出一个geojson文件
-	gexist := false
-	if gjson != "" {
-		if utils.PathExist(gjson){
-			gexist = true
-		}
-	}
-
-	if !gexist{
-		// 不存在则导出
-		folder := config.PathDatasources(dt.Owner)
-		gname := fmt.Sprintf("%v_%v.geojson", dt.Id, dt.Version)
-		gjson = filepath.Join(folder,gname)
-
-		para := utils.Pg2geojsonParams{
-			Pghost:    viper.GetString("db.host"),
-			Pgport:    viper.GetString("db.port"),
-			Pguser:    viper.GetString("db.user"),
-			Pgpswd:    viper.GetString("db.password"),
-			Dbname:    viper.GetString("db.database"),
-			Geojson:   gjson,
-			TableName: dt.TableName,
-		}
-
-		if _,err = os.Stat(gjson); os.IsNotExist(err){
-			err := utils.Pg2geojson(para)
-			if err != nil {
-				return nil, fmt.Errorf("Pg2geojson failed: %v", err)
+		// 如果geojson文件不存在，则从数据库中导出一个geojson文件
+		gexist := false
+		if gjson != "" {
+			if utils.PathExist(gjson){
+				gexist = true
 			}
 		}
-	}
 
-	// geojson 有了，转为mbtiles
-	mbfolder := config.PathDatasets(dt.Owner)
-	utils.EnsurePathExist(mbfolder)
-	mbfile := fmt.Sprintf("%v_%v.mbtiles", dt.Name, dt.Version)
-	mb := filepath.Join(mbfolder,mbfile)
-	err = utils.CreateMbtiles([]string{gjson}, dt.Name, mb)
-	if err != nil{
-		return nil, fmt.Errorf("Create mbtiles failed: %v",err)
-	}
+		if !gexist{
+			// 不存在则导出
+			folder := config.PathDatasources(dt.Owner)
+			gname := fmt.Sprintf("%v_%v.geojson", dt.Id, dt.Version)
+			gjson = filepath.Join(folder,gname)
 
-	ts,err = TilesetLoad(mb)
-	if err != nil{
-		return nil, fmt.Errorf("Loadd mbtiles failed: %v",err)
-	}
+			para := utils.Pg2geojsonParams{
+				Pghost:    viper.GetString("db.host"),
+				Pgport:    viper.GetString("db.port"),
+				Pguser:    viper.GetString("db.user"),
+				Pgpswd:    viper.GetString("db.password"),
+				Dbname:    viper.GetString("db.database"),
+				Geojson:   gjson,
+				TableName: dt.TableName,
+			}
 
-	// 信息
-	ts.Id = dt.Id
-	ts.Version = dt.Version
-	ts.Owner = dt.Owner
-	ts.Name = ts.Name
+			if _,err = os.Stat(gjson); os.IsNotExist(err){
+				err := utils.Pg2geojson(para)
+				if err != nil {
+					task.Status = "failed"
+					task.Error = fmt.Errorf("Pg2geojson failed: %v", err).Error()
+					return
+				}
+			}
+		}
+		task.Progress = 20
+		task.Update()
 
-	err = ts.Save()
-	if err != nil{
-		return nil, fmt.Errorf("save tileset info failed: %v",err)
-	}
+		// geojson 有了，转为mbtiles
+		mbfolder := config.PathTilesets(dt.Owner)
+		utils.EnsurePathExist(mbfolder)
+		mbfile := fmt.Sprintf("%v_%v.mbtiles", dt.Name, dt.Version)
+		mb := filepath.Join(mbfolder,mbfile)
 
-	return ts, nil
+		err = utils.CreateMbtiles([]string{gjson}, dt.Name, mb, task)
+		if err != nil{
+			task.Status = "failed"
+			task.Error = fmt.Errorf("Create mbtiles failed: %v",err).Error()
+			return
+		}
+
+		ts,err := TilesetLoad(mb)
+		if err != nil{
+			task.Status = "failed"
+			task.Error = fmt.Errorf("Loadd mbtiles failed: %v",err).Error()
+			return
+		}
+
+		// 信息
+		ts.Id = dt.Id
+		ts.Dataset = dt.Id
+		ts.Version = dt.Version
+		ts.Owner = dt.Owner
+		ts.Name = ts.Name
+
+		err = ts.Save()
+		if err != nil{
+			task.Status = "failed"
+			task.Error = fmt.Errorf("save tileset info failed: %v",err).Error()
+			return
+		}
+
+		task.Progress = 100
+		task.Status = "finished"
+		task.Error = ""
+
+	}(dt, task)
+
+	go func(task *models.Task) {
+		<-task.Pipe
+		task.Update()
+		TaskSet.Delete(task.ID)
+		if task.Error != ""{
+			log.Errorf("public tileset failed: %v", task.Error)
+		}
+	}(task)
+
+	return task, nil
 }
