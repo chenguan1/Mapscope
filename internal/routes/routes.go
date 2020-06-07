@@ -60,19 +60,29 @@ func SetRoutes(app *iris.Application) {
 	// tilesets
 	ts := api.Party("/tilesets")
 	{
-		ts.Get("/list/{username}", TilesetList)      // List tilesets ok
-		ts.Post("/upload/{username}", TilesetUpload) // upload mbtiles file ok
-		ts.Delete("/{tileset_id}", TilesetDelete)    // Delete tileset ok
+		ts.Get("/list/{username}", TilesetList)          // List tilesets ok
+		ts.Post("/upload/{username}", TilesetUpload)     // upload mbtiles file ok
+		ts.Delete("/{tileset_id}", TilesetDelete)        // Delete tileset ok
+		ts.Post("/publish/{dataset_id}", TilesetPublish) // Publish a dataset to tileset ok
+		ts.Get("/{tileset_id}/jobs", TilesetJobList)     // List information about all jobs for a tileset
 
-		ts.Post("/publish/{dataset_id}", TilesetPublish) // Publish a dataset to tileset ok or not...
-		ts.Get("/{tileset_id}/status", TilesetStatus)    // Retrieve the status of a tileset
-
-		ts.Get("/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}/jobs/{job_id}", TilesetJobInfo) // Retrieve information about a single tileset job
-		ts.Get("/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}/jobs", TilesetJobList)          // List information about all jobs for a tileset
-		ts.Put("/queue", TilesetJobQueue)                                                          // View the Tilesets API global queue
+		ds.Get(`/{tileset_id}/{zoom:int}/{x:int}/{yformat:string regexp(^[0-9]+.[a-z]+)}`, TilesetTile) // get mvt tile of tileset
+		ds.Get("/{tileset_id}/tile.json", TilesetTilejson)                                              // tilejson
+		ds.Head("/{tileset_id}/tile.json", TilesetTilejson)                                             // tilejson
 
 		ts.Put("/validateRecipe", TilesetRecipeValidate)                                           // Validate a recipe
 		ts.Get("/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}/recipe", TilesetRecipe)         // Retrieve a tileset's recipe
 		ts.Patch("/{tileset:string regexp(^[a-zA-Z_-]+.[a-zA-Z_-]+)}/recipe", TilesetRecipeUpdate) // Update a tileset's recipe
+	}
+
+	// jobs
+	/*
+	处理过程中不存数据库
+	处理结束后保存数据库
+	*/
+	jb := api.Party("/jobs")
+	{
+		jb.Get("/list/{username}")
+		jb.Get("/{job_id}", TilesetJobInfo) // Retrieve information about a single tileset job
 	}
 }

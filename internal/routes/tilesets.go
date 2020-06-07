@@ -6,8 +6,10 @@ import (
 	"Mapscope/internal/services"
 	"Mapscope/internal/thirdparty/teris-io/shortid"
 	"Mapscope/internal/utils"
+	"fmt"
 	"github.com/kataras/iris/v12/context"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -225,4 +227,46 @@ func TilesetDelete(ctx context.Context) {
 
 func TilesetMetadata(ctx context.Context) {
 	ctx.StatusCode(http.StatusNoContent)
+}
+
+// get tileset tile
+func TilesetTile(ctx context.Context)  {
+	tsid := ctx.Params().Get("tileset_id")
+	zoom, _ := strconv.Atoi(ctx.Params().Get("zoom"))
+	x, _ := strconv.Atoi(ctx.Params().Get("x"))
+	yformat := strings.Split(ctx.Params().Get("yformat"), ".")
+	y, _ := strconv.Atoi(yformat[0])
+	format := "." + yformat[1]
+
+	// new res
+	res := utils.NewRes(ctx)
+
+	// 用户认证
+	if format != ".mvt" && format != ".pbf" {
+		ctx.Application().Logger().Errorf("DatasetTile, format %s not surpported.", format)
+		res.FailMsg(fmt.Sprintf("format %s not surported.", format))
+		return
+	}
+
+	// get the vector tile buf data
+	data := make([]byte, 0)
+
+	for _, dtid := range dtids {
+		// 获取切片
+		mvtbuf, err := services.DatasetToMvtBuf(dtid, zoom, x, y)
+		if err != nil {
+			ctx.Application().Logger().Errorf("DatasetTile, get mvt failed, err: %v", err)
+			res.FailMsg("get mvt tile failed.")
+			return
+		}
+		data = append(data, mvtbuf...)
+	}
+
+	ctx.ContentType("application/vnd.mapbox-vector-tile")
+	ctx.Binary(data)
+}
+
+// get tileset's tilejson
+func TilesetTilejson(ctx context.Context)  {
+	
 }

@@ -91,7 +91,7 @@ func FeatureDelete(dataset_id string, feature_id string) error {
 		return fmt.Errorf("FeatureDelete failed, err: %v", err)
 	}
 
-	sqlfmt := `delete from %s where gid = %v`
+	sqlfmt := `delete from "%s" where gid = %v`
 
 	sql := fmt.Sprintf(sqlfmt, dt.TableName, feature_id)
 
