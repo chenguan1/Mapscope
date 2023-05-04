@@ -1,3 +1,2 @@
 # Mapscope
-Another Mapbox Studio
-0
+Another Mapbox Studio Server
